@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:title="Inicio"
+        android:icon="@android:drawable/ic_menu_today" />
+    <item
+    android:id="@+id/traductorFragment"
+    android:title="Traductor"
+    android:icon="@android:drawable/ic_btn_speak_now" />
+    <item
+    android:id="@+id/juegosFragment"
+    android:title="Arcade"
+        android:icon="@android:drawable/ic_btn_speak_now" />
+    <item
+    android:id="@+id/perfilFragment"
+    android:title="Perfil"
+    android:icon="@android:drawable/ic_menu_mylocation" />
+</menu>

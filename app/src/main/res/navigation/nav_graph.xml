@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.lexihand.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.example.lexihand.PerfilFragment"
+        android:label="fragment_perfil"
+        tools:layout="@layout/fragment_perfil" />
+    <fragment
+        android:id="@+id/juegosFragment"
+        android:name="com.example.lexihand.JuegosFragment"
+        android:label="fragment_juegos"
+        tools:layout="@layout/fragment_juegos" />
+    <fragment
+        android:id="@+id/traductorFragment"
+        android:name="com.example.lexihand.TraductorFragment"
+        android:label="fragment_traductor"
+        tools:layout="@layout/fragment_traductor" />
+</navigation>
