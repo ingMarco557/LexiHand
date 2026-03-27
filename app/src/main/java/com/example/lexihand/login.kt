@@ -32,7 +32,7 @@ class login : AppCompatActivity() {
 
         // --- FORMA TRADICIONAL ---
         // 1. Declaramos y buscamos el botón manualmente por su ID
-        val btnIngresar = findViewById<Button>(R.id.btnIngresar)
+        val btnIngresar = findViewById<Button>(R.id.btnLogin)
 
         // 2. Programamos el clic
         btnIngresar.setOnClickListener {
