@@ -50,6 +50,12 @@ class MenuFragment : Fragment() {
             // startActivity(intent)
         }
 
+        rootView.findViewById<MaterialCardView>(R.id.cardTraining)?.setOnClickListener {
+            val intent = Intent(requireContext(), DataCollectionActivity::class.java)
+            startActivity(intent)
+        }
+
+
         return rootView
     }
 }

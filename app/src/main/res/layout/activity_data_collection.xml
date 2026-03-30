@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F7FA">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarCollection"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
+            app:title="Recolección de Datos (ML)"
+            app:navigationIcon="@drawable/ic_back" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gesto a Entrenar:"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerGestures"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutCustomGesture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Escribe el nombre (ej: JUAN)"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCustomGesture"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapCharacters" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/txtSampleCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Muestras: 0 / 100"
+                android:layout_marginBottom="8dp"/>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressSamples"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progress="0"
+                app:trackThickness="12dp"
+                app:trackCornerRadius="6dp"
+                android:layout_marginBottom="24dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#1A1A1A"
+                app:cardCornerRadius="12dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Datos en Tiempo Real:"
+                        android:textColor="#00FF00"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/txtRealTimeData"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pulgar:  0.00, 0.00, 0.00\nÍndice:  0.00, 0.00, 0.00\nMedio:   0.00, 0.00, 0.00\nAnular:  0.00, 0.00, 0.00\nMeñique: 0.00, 0.00, 0.00"
+                        android:textColor="#00FF00"
+                        android:fontFamily="monospace"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"/>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" android:layout_marginVertical="12dp"/>
+
+                    <TextView
+                        android:id="@+id/txtStats"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="FPS: 0 | Latencia: 0ms\nVálidos: 0 | Errores: 0"
+                        android:textColor="#00FF00"
+                        android:fontFamily="monospace"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:layout_marginTop="24dp">
+
+                <Button
+                    android:id="@+id/btnStartStop"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    android:text="Comenzar"
+                    android:backgroundTint="#4CAF50"/>
+
+                <Button
+                    android:id="@+id/btnExport"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    android:text="Exportar CSV"
+                    style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+                <Button
+                    android:id="@+id/btnValidate"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    android:text="Validar"
+                    style="@style/Widget.Material3.Button.TonalButton"/>
+
+                <Button
+                    android:id="@+id/btnClear"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    android:text="Limpiar"
+                    android:backgroundTint="#F44336"/>
+            </GridLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
