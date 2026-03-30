@@ -15,7 +15,7 @@ class ViewPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activi
         HomeFragment(),           // Índice 0: Inicio
         TraductorFragment(),      // Índice 1: Traductor
         JuegosFragment(),         // Índice 2: Juegos
-        PerfilFragment()          // Índice 3: Perfil
+        MenuFragment()          // Índice 3: Perfil
     )
 
     /**

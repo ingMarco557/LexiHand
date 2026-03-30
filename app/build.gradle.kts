@@ -45,9 +45,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // dependencia de los view
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+
 
     // Navegación
     implementation(libs.androidx.navigation.fragment.ktx)
