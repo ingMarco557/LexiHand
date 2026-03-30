@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- OPCIÓN 1: Inicio -->
     <item
-        android:id="@+id/homeFragment"
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
         android:title="Inicio"
-        android:icon="@android:drawable/ic_menu_today" />
+        android:contentDescription="Pantalla de inicio" />
+
+    <!-- OPCIÓN 2: Traductor -->
     <item
-    android:id="@+id/traductorFragment"
-    android:title="Traductor"
-    android:icon="@android:drawable/ic_btn_speak_now" />
+        android:id="@+id/nav_traductor"
+        android:icon="@drawable/ic_translate"
+        android:title="Traductor"
+        android:contentDescription="Herramienta de traducción" />
+
+    <!-- OPCIÓN 3: Juegos -->
     <item
-    android:id="@+id/juegosFragment"
-    android:title="Arcade"
-        android:icon="@android:drawable/ic_btn_speak_now" />
+        android:id="@+id/nav_juegos"
+        android:icon="@drawable/ic_games"
+        android:title="Juegos"
+        android:contentDescription="Sección de juegos" />
+
+    <!-- OPCIÓN 4: Perfil -->
     <item
-    android:id="@+id/perfilFragment"
-    android:title="Perfil"
-    android:icon="@android:drawable/ic_menu_mylocation" />
+        android:id="@+id/nav_perfil"
+        android:icon="@drawable/ic_profile"
+        android:title="Perfil"
+        android:contentDescription="Perfil del usuario" />
+
 </menu>

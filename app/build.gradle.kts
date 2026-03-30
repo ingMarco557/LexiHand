@@ -46,7 +46,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-
+    // dependencia de los view
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     // Navegación
     implementation(libs.androidx.navigation.fragment.ktx)
