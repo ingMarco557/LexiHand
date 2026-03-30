@@ -46,6 +46,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
 
     // dependencia de los view
     implementation("androidx.viewpager2:viewpager2:1.0.0")

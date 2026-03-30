@@ -14,37 +14,38 @@ class MenuFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // INFLAMOS la vista primero
+        // 1. Inflamos la vista raíz
         val rootView = inflater.inflate(R.layout.fragment_menu, container, false)
 
-        // --- CONFIGURACIÓN DE CLICS (Solo se activan cuando el usuario toca el botón) ---
+        // --- CONFIGURACIÓN DE NAVEGACIÓN ---
 
-        // 9. Diagnóstico (Corregido: Ahora solo abre al hacer CLICK)
+        // 10. PERFIL (¡ACTIVADO!)
+        rootView.findViewById<MaterialCardView>(R.id.cardProfile)?.setOnClickListener {
+            val intent = Intent(requireContext(), ProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        // 9. DIAGNÓSTICO
         rootView.findViewById<MaterialCardView>(R.id.cardDiagnostics)?.setOnClickListener {
             val intent = Intent(requireContext(), DiagnosticsActivity::class.java)
             startActivity(intent)
         }
 
-        // 11. Estadísticas
+        // 11. ESTADÍSTICAS
         rootView.findViewById<MaterialCardView>(R.id.cardStats)?.setOnClickListener {
             val intent = Intent(requireContext(), StatisticsActivity::class.java)
             startActivity(intent)
         }
 
-        // 12. Configuración
+        // 12. CONFIGURACIÓN
         rootView.findViewById<MaterialCardView>(R.id.cardSettings)?.setOnClickListener {
             val intent = Intent(requireContext(), SettingsActivity::class.java)
             startActivity(intent)
         }
 
-        // 10. Perfil (Mantenemos comentado hasta que crees la Activity)
-        rootView.findViewById<MaterialCardView>(R.id.cardProfile)?.setOnClickListener {
-            // val intent = Intent(requireContext(), ProfileActivity::class.java)
-            // startActivity(intent)
-        }
-
-        // 19. Entrenamiento ML
+        // 19. ENTRENAMIENTO ML (Lo dejamos listo para cuando crees la Activity)
         rootView.findViewById<MaterialCardView>(R.id.cardTraining)?.setOnClickListener {
+            // Cuando crees ModelTrainingActivity, descomenta estas líneas:
             // val intent = Intent(requireContext(), ModelTrainingActivity::class.java)
             // startActivity(intent)
         }
