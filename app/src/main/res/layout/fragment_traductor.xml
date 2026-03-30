@@ -1,14 +1,46 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TraductorFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    android:orientation="vertical"
+    android:background="#2E7D32"> <com.google.android.material.card.MaterialCardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="#80FFFFFF">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_hand_wave"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="BLE:  Conectado" android:textSize="18sp" android:layout_marginStart="16dp" android:textStyle="bold"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
 
-</FrameLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvChat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        android:clipToPadding="false"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnMic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            app:fabCustomSize="100dp"
+            android:src="@android:drawable/ic_btn_speak_now"
+            app:tint="@color/white"
+            android:backgroundTint="#4CAF50"
+            app:maxImageSize="50dp"/>
+    </RelativeLayout>
+
+</LinearLayout>
