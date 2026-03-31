@@ -1,6 +1,10 @@
 package com.example.lexihand
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -29,69 +33,81 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // 1. Configurar Edge-to-Edge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // 2. Inicializar Vistas
         viewPager = findViewById(R.id.viewPager)
         bottomNav = findViewById(R.id.bottomNav)
         viewPager.adapter = ViewPagerAdapter(this)
 
-        // 3. ESTADO INICIAL: Forzamos a que aparezca desconectado antes de cualquier cosa
         inicializarEstadoUI()
 
-        // 4. Inicializar Motor del Guante e IA
         guanteManager = GuanteManager(this, this)
 
-        // 5. Configurar Navegación
         setupViewPagerListener()
         setupBottomNavListener()
 
-        // 6. Verificar Permisos y Conectar
-        verificarPermisosYConectar()
+        // Solicitar todos los permisos necesarios
+        verificarPermisosSolo()
     }
 
     private fun inicializarEstadoUI() {
-        // Ejecutamos la lógica de desconexión manualmente para pintar la UI de rojo al inicio
         onStatusChanged(false, 0)
     }
 
-    // --- LÓGICA DE PERMISOS ---
-    private fun verificarPermisosYConectar() {
-        val permisos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
-        } else {
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    // --- CORRECCIÓN CLAVE: Función de vinculación con validación de Bluetooth ---
+    fun iniciarVinculacion() {
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val adapter = bluetoothManager.adapter
+
+        // Si el celular no tiene Bluetooth o está apagado, te avisa y pide encenderlo
+        if (adapter == null || !adapter.isEnabled) {
+            Toast.makeText(this, "Enciende el Bluetooth para conectar el guante", Toast.LENGTH_LONG).show()
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivity(enableBtIntent)
+            return
         }
 
-        val faltanPermisos = permisos.any {
+        runOnUiThread {
+            val txtStatus = findViewById<TextView>(R.id.txtBLEStatus)
+            txtStatus?.text = "Buscando guante..."
+            txtStatus?.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+        }
+
+        guanteManager.connect()
+    }
+
+    // --- CORRECCIÓN CLAVE: Permisos completos ---
+    private fun verificarPermisosSolo() {
+        val permisos = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permisos.add(Manifest.permission.BLUETOOTH_SCAN)
+            permisos.add(Manifest.permission.BLUETOOTH_CONNECT)
+            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION) // Vital para buscar dispositivos nuevos
+        } else {
+            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        val faltanPermisos = permisos.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
 
-        if (faltanPermisos) {
-            requestPermissionLauncher.launch(permisos)
-        } else {
-            guanteManager.connect()
+        if (faltanPermisos.isNotEmpty()) {
+            requestPermissionLauncher.launch(faltanPermisos.toTypedArray())
         }
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
-        if (results.all { it.value }) {
-            guanteManager.connect()
-        } else {
-            onStatusChanged(false, 0)
-            Toast.makeText(this, "Se requieren permisos para el guante", Toast.LENGTH_SHORT).show()
+        if (!results.all { it.value }) {
+            Toast.makeText(this, "Acepta los permisos de Ubicación y Dispositivos Cercanos", Toast.LENGTH_LONG).show()
         }
     }
 
-    // --- IMPLEMENTACIÓN DE GUANTE LISTENER ---
-    // Este método es el que asegura que si el guante se apaga, la UI cambie a rojo
     override fun onStatusChanged(conectado: Boolean, bateria: Int) {
         runOnUiThread {
             val statusDot = findViewById<View>(R.id.statusDot)
@@ -104,7 +120,6 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
                 txtStatus?.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark))
                 txtBattery?.text = "🔋 $bateria%"
             } else {
-                // AQUÍ SE APLICA TU REQUERIMIENTO: "Guante no conectado"
                 statusDot?.setBackgroundResource(R.drawable.shape_circle_red)
                 txtStatus?.text = "Guante no conectado"
                 txtStatus?.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
@@ -122,11 +137,8 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         }
     }
 
-    override fun onRawDataReceived(data: String) {
-        // Opcional: Logcat para debug
-    }
+    override fun onRawDataReceived(data: String) {}
 
-    // --- CONFIGURACIÓN DE UI ---
     private fun setupViewPagerListener() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
