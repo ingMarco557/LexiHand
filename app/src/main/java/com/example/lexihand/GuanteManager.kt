@@ -32,6 +32,9 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
     private val MARGEN_ESTABILIDAD = 500L
     private val COOLDOWN_ENTRE_LETRAS = 1500L
 
+    // --- MEMORIA ANTI-CEROS (NUEVO) ---
+    private var ultimosValoresValidos = FloatArray(15) { 0f }
+
     private val SENSOR_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
     private val etiquetas = listOf("A", "B", "C", "D", "E", "F", "G", "H", "S")
 
@@ -122,17 +125,27 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
     private fun processData(data: String) {
         if (data.isEmpty()) return
         try {
-            // 1. Convertimos la trama "100,200,300..." en una lista de números
-            val partes = data.split(",")
+            // 1. Limpieza de trama (Acepta comas o puntos y coma para mayor compresión)
+            val partes = data.split(Regex("[,;]"))
             val valuesParaIA = FloatArray(15) { 0f }
 
             for (i in partes.indices) {
                 if (i < 15) {
-                    valuesParaIA[i] = partes[i].trim().toFloatOrNull() ?: 0f
+                    // Limpiamos el valor (por si acaso aún envías el "S1:")
+                    val valorLeido = partes[i].substringAfter(":").trim().toFloatOrNull() ?: 0f
+
+                    // FILTRO ANTI-CERO: Si el sensor da 0 pero antes tenía un valor válido (>10),
+                    // usamos el último valor válido conocido para que la IA no se confunda.
+                    if (valorLeido <= 0f && ultimosValoresValidos[i] > 10f) {
+                        valuesParaIA[i] = ultimosValoresValidos[i]
+                    } else {
+                        valuesParaIA[i] = valorLeido
+                        ultimosValoresValidos[i] = valorLeido
+                    }
                 }
             }
 
-            // 2. ENVIAR AL DIAGNÓSTICO: Reconstruimos "S1:val,S2:val..." solo para la vista
+            // 2. ENVIAR AL DIAGNÓSTICO: Reconstruimos "S1:val,S2:val..." para la vista
             val debugData = valuesParaIA.take(5).mapIndexed { i, v ->
                 "S${i + 1}:${v.toInt()}"
             }.joinToString(",")
@@ -153,27 +166,30 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
             val confianza = if (maxIndex != -1) output[0][maxIndex] else 0f
             val letraDetectada = if (maxIndex != -1) etiquetas[maxIndex] else "--"
 
-            // 4. ENVIAR RESULTADO IA AL DIAGNÓSTICO
-            val intentAI = Intent("GUANTE_AI_DATA").apply {
-                putExtra("letra", letraDetectada)
-                putExtra("confianza", (confianza * 100).toInt())
-            }
-            context.sendBroadcast(intentAI)
+            // 4. FILTRO DE RUIDO BASE (Solo procesamos si la confianza es real)
+            if (confianza > 0.10f) {
+                // ENVIAR RESULTADO IA AL DIAGNÓSTICO
+                val intentAI = Intent("GUANTE_AI_DATA").apply {
+                    putExtra("letra", letraDetectada)
+                    putExtra("confianza", (confianza * 100).toInt())
+                }
+                context.sendBroadcast(intentAI)
 
-            // 5. FILTRO DE ESTABILIDAD (0.5 Segundos)
-            if (confianza >= 0.80f) {
-                if (letraDetectada == letraTemporal) {
-                    if (System.currentTimeMillis() - tiempoInicioEstabilidad >= MARGEN_ESTABILIDAD) {
-                        listener.onLetraDetectada(letraDetectada)
-                        // Esperar 1.5s para la siguiente letra
-                        tiempoInicioEstabilidad = System.currentTimeMillis() + COOLDOWN_ENTRE_LETRAS
+                // 5. FILTRO DE ESTABILIDAD (0.5 Segundos)
+                if (confianza >= 0.80f) {
+                    if (letraDetectada == letraTemporal) {
+                        if (System.currentTimeMillis() - tiempoInicioEstabilidad >= MARGEN_ESTABILIDAD) {
+                            listener.onLetraDetectada(letraDetectada)
+                            // Esperar 1.5s para la siguiente letra
+                            tiempoInicioEstabilidad = System.currentTimeMillis() + COOLDOWN_ENTRE_LETRAS
+                        }
+                    } else {
+                        letraTemporal = letraDetectada
+                        tiempoInicioEstabilidad = System.currentTimeMillis()
                     }
                 } else {
-                    letraTemporal = letraDetectada
-                    tiempoInicioEstabilidad = System.currentTimeMillis()
+                    letraTemporal = ""
                 }
-            } else {
-                letraTemporal = ""
             }
 
         } catch (e: Exception) {
