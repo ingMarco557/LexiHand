@@ -26,17 +26,14 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
     private var tflite: Interpreter? = null
     private var isScanning = false
 
-    // --- VARIABLES PARA ESTABILIDAD Y TIEMPO ---
+    private val SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
+    private val CHARACTERISTIC_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
+    private val DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+
+    private val etiquetas = listOf("A", "B", "C", "D", "E", "F", "G", "H", "S")
     private var letraTemporal = ""
     private var tiempoInicioEstabilidad = 0L
     private val MARGEN_ESTABILIDAD = 500L
-    private val COOLDOWN_ENTRE_LETRAS = 1500L
-
-    // --- MEMORIA ANTI-CEROS (NUEVO) ---
-    private var ultimosValoresValidos = FloatArray(15) { 0f }
-
-    private val SENSOR_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
-    private val etiquetas = listOf("A", "B", "C", "D", "E", "F", "G", "H", "S")
 
     init {
         loadModel()
@@ -45,74 +42,56 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
     private fun loadModel() {
         try {
             val fd = context.assets.openFd("modelo_guante.tflite")
-            val buffer = FileInputStream(fd.fileDescriptor).channel.map(FileChannel.MapMode.READ_ONLY, fd.startOffset, fd.declaredLength)
+            val buffer = FileInputStream(fd.fileDescriptor).channel.map(
+                FileChannel.MapMode.READ_ONLY, fd.startOffset, fd.declaredLength
+            )
             tflite = Interpreter(buffer)
-            Log.d("GuanteManager", "Modelo TFLite cargado con éxito")
         } catch (e: Exception) {
-            Log.e("GuanteManager", "Error al cargar modelo: ${e.message}")
+            Log.e("GuanteManager", "Error modelo: ${e.message}")
         }
     }
 
     @SuppressLint("MissingPermission")
     fun connect() {
         if (isScanning) return
-
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val adapter = bluetoothManager.adapter
-
-        if (adapter == null || !adapter.isEnabled) {
-            listener.onStatusChanged(false, 0)
-            return
-        }
-
+        val adapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         val scanner = adapter.bluetoothLeScanner
-        val scanCallback = object : ScanCallback() {
+        val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                val deviceName = result.device.name ?: result.scanRecord?.deviceName
-                if (deviceName == "ESP32_GUANTE") {
+                // VERIFICA QUE EL NOMBRE COINCIDA CON TU ESP32
+                if (result.device.name == "ESP32_GUANTE" || result.device.name == "ESP32_SyncApp") {
                     isScanning = false
                     scanner.stopScan(this)
                     bluetoothGatt = result.device.connectGatt(context, false, gattCallback)
                 }
             }
         }
-
         isScanning = true
-        scanner?.startScan(scanCallback)
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (isScanning) {
-                isScanning = false
-                scanner?.stopScan(scanCallback)
-                listener.onStatusChanged(false, 0)
-            }
-        }, 10000)
+        scanner?.startScan(callback)
     }
 
     private val gattCallback = object : BluetoothGattCallback() {
         @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            if (status != BluetoothGatt.GATT_SUCCESS || newState == BluetoothProfile.STATE_DISCONNECTED) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                gatt.discoverServices()
+                listener.onStatusChanged(true, 100)
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 listener.onStatusChanged(false, 0)
                 bluetoothGatt?.close()
                 bluetoothGatt = null
-                return
-            }
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                listener.onStatusChanged(true, 85)
-                gatt.discoverServices()
             }
         }
 
         @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-            val service = gatt.getService(UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"))
-            val characteristic = service?.getCharacteristic(SENSOR_UUID)
-            if (characteristic != null) {
-                gatt.setCharacteristicNotification(characteristic, true)
-                val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                descriptor?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                gatt.writeDescriptor(descriptor!!)
+            val service = gatt.getService(SERVICE_UUID)
+            val characteristic = service?.getCharacteristic(CHARACTERISTIC_UUID)
+            characteristic?.let {
+                gatt.setCharacteristicNotification(it, true)
+                val desc = it.getDescriptor(DESCRIPTOR_UUID)
+                desc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                gatt.writeDescriptor(desc)
             }
         }
 
@@ -122,76 +101,55 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
         }
     }
 
-    private fun processData(data: String) {
-        if (data.isEmpty()) return
+    private fun processData(linea: String) {
+        if (linea.isEmpty() || !linea.contains("|")) return
+
         try {
-            // 1. Limpieza de trama (Acepta comas o puntos y coma para mayor compresión)
-            val partes = data.split(Regex("[,;]"))
-            val valuesParaIA = FloatArray(15) { 0f }
+            val lineaLimpia = linea.trim().replace("\n", "").replace("\r", "")
+            val datosStrings = lineaLimpia.replace("|", ",").split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
 
-            for (i in partes.indices) {
-                if (i < 15) {
-                    // Limpiamos el valor (por si acaso aún envías el "S1:")
-                    val valorLeido = partes[i].substringAfter(":").trim().toFloatOrNull() ?: 0f
-
-                    // FILTRO ANTI-CERO: Si el sensor da 0 pero antes tenía un valor válido (>10),
-                    // usamos el último valor válido conocido para que la IA no se confunda.
-                    if (valorLeido <= 0f && ultimosValoresValidos[i] > 10f) {
-                        valuesParaIA[i] = ultimosValoresValidos[i]
-                    } else {
-                        valuesParaIA[i] = valorLeido
-                        ultimosValoresValidos[i] = valorLeido
-                    }
+            if (datosStrings.size >= 15) {
+                val inputIA = FloatArray(15)
+                for (i in 0 until 15) {
+                    inputIA[i] = datosStrings[i].toFloatOrNull() ?: 0f
                 }
-            }
 
-            // 2. ENVIAR AL DIAGNÓSTICO: Reconstruimos "S1:val,S2:val..." para la vista
-            val debugData = valuesParaIA.take(5).mapIndexed { i, v ->
-                "S${i + 1}:${v.toInt()}"
-            }.joinToString(",")
+                // --- CORRECCIÓN AQUÍ: Formato simple S1:V,S2:V ---
+                val s1 = inputIA[0].toInt()
+                val s2 = inputIA[3].toInt()
+                val s3 = inputIA[6].toInt()
+                val s4 = inputIA[9].toInt()
+                val s5 = inputIA[12].toInt()
 
-            val intentRaw = Intent("GUANTE_RAW_DATA")
-            intentRaw.putExtra("data", debugData)
-            context.sendBroadcast(intentRaw)
+                val debugMsg = "S1:$s1,S2:$s2,S3:$s3,S4:$s4,S5:$s5"
 
-            listener.onRawDataReceived(debugData)
+                val intentRaw = Intent("GUANTE_RAW_DATA").apply {
+                    putExtra("data", debugMsg)
+                    setPackage(context.packageName)
+                }
+                context.sendBroadcast(intentRaw)
 
-            // 3. EJECUTAR INFERENCIA (Modelo de 15 entradas)
-            val input = Array(1) { valuesParaIA }
-            val output = Array(1) { FloatArray(etiquetas.size) }
+                // --- INFERENCIA ---
+                val outputIA = Array(1) { FloatArray(etiquetas.size) }
+                tflite?.run(arrayOf(inputIA), outputIA)
 
-            tflite?.run(input, output)
+                val maxIndex = outputIA[0].indices.maxByOrNull { outputIA[0][it] } ?: -1
+                val confianzaCalculada = if (maxIndex != -1) (outputIA[0][maxIndex] * 100).toInt() else 0
+                val letraDetectada = if (maxIndex != -1) etiquetas[maxIndex] else "--"
 
-            val maxIndex = output[0].indices.maxByOrNull { output[0][it] } ?: -1
-            val confianza = if (maxIndex != -1) output[0][maxIndex] else 0f
-            val letraDetectada = if (maxIndex != -1) etiquetas[maxIndex] else "--"
-
-            // 4. FILTRO DE RUIDO BASE (Solo procesamos si la confianza es real)
-            if (confianza > 0.10f) {
-                // ENVIAR RESULTADO IA AL DIAGNÓSTICO
                 val intentAI = Intent("GUANTE_AI_DATA").apply {
                     putExtra("letra", letraDetectada)
-                    putExtra("confianza", (confianza * 100).toInt())
+                    putExtra("confianza", confianzaCalculada)
+                    setPackage(context.packageName)
                 }
                 context.sendBroadcast(intentAI)
 
-                // 5. FILTRO DE ESTABILIDAD (0.5 Segundos)
-                if (confianza >= 0.80f) {
-                    if (letraDetectada == letraTemporal) {
-                        if (System.currentTimeMillis() - tiempoInicioEstabilidad >= MARGEN_ESTABILIDAD) {
-                            listener.onLetraDetectada(letraDetectada)
-                            // Esperar 1.5s para la siguiente letra
-                            tiempoInicioEstabilidad = System.currentTimeMillis() + COOLDOWN_ENTRE_LETRAS
-                        }
-                    } else {
-                        letraTemporal = letraDetectada
-                        tiempoInicioEstabilidad = System.currentTimeMillis()
-                    }
-                } else {
-                    letraTemporal = ""
-                }
-            }
+                // Log para que veas en el Logcat si está procesando
+                Log.d("GuanteManager", "Enviado a UI: $debugMsg | IA: $letraDetectada")
 
+            }
         } catch (e: Exception) {
             Log.e("GuanteManager", "Error: ${e.message}")
         }
