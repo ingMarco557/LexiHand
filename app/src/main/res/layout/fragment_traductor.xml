@@ -1,24 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#2E7D32"> <com.google.android.material.card.MaterialCardView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    app:cardCornerRadius="20dp"
-    app:cardBackgroundColor="#80FFFFFF">
-    <LinearLayout
+    android:background="#2E7D32">
+
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:gravity="center_vertical">
-        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_hand_wave"/>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="BLE:  Conectado" android:textSize="18sp" android:layout_marginStart="16dp" android:textStyle="bold"/>
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="#80FFFFFF">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_hand_wave"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BLE: Conectado"
+                android:textSize="18sp"
+                android:layout_marginStart="16dp"
+                android:textStyle="bold"
+                android:textColor="#212121"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChat"
@@ -28,19 +40,67 @@
         android:padding="16dp"
         android:clipToPadding="false"/>
 
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
+            android:id="@+id/layoutWorkbench"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/txtPalabraEnFormacion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Esperando guante..."
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:padding="10dp"/>
+
+            <ImageButton
+                android:id="@+id/btnBorrarLetra"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_input_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Borrar letra"
+                app:tint="#D32F2F" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEnviarPalabra"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Escribir"
+                app:cornerRadius="15dp"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#757575"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp">
+        android:layout_height="150dp">
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnMic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            app:fabCustomSize="100dp"
+            app:fabCustomSize="90dp"
             android:src="@android:drawable/ic_btn_speak_now"
             app:tint="@color/white"
             android:backgroundTint="#4CAF50"
-            app:maxImageSize="50dp"/>
+            app:maxImageSize="45dp"/>
     </RelativeLayout>
 
 </LinearLayout>

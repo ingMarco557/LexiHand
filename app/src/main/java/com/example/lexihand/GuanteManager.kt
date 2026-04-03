@@ -5,6 +5,7 @@ import android.bluetooth.*
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -24,6 +25,12 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
     private var bluetoothGatt: BluetoothGatt? = null
     private var tflite: Interpreter? = null
     private var isScanning = false
+
+    // --- VARIABLES PARA ESTABILIDAD Y TIEMPO ---
+    private var letraTemporal = ""
+    private var tiempoInicioEstabilidad = 0L
+    private val MARGEN_ESTABILIDAD = 500L
+    private val COOLDOWN_ENTRE_LETRAS = 1500L
 
     private val SENSOR_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
     private val etiquetas = listOf("A", "B", "C", "D", "E", "F", "G", "H", "S")
@@ -45,7 +52,7 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
 
     @SuppressLint("MissingPermission")
     fun connect() {
-        if (isScanning) return // Evita múltiples escaneos si el usuario pulsa muchas veces
+        if (isScanning) return
 
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val adapter = bluetoothManager.adapter
@@ -56,40 +63,24 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
         }
 
         val scanner = adapter.bluetoothLeScanner
-        Log.d("GuanteManager", "Iniciando búsqueda de ESP32_GUANTE...")
-
         val scanCallback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                // CORRECCIÓN CLAVE: Buscar el nombre de forma segura para Android 12+
                 val deviceName = result.device.name ?: result.scanRecord?.deviceName
-
-                // Muestra en la consola todos los dispositivos que va encontrando
-                Log.d("GuanteManager", "Dispositivo detectado: $deviceName")
-
                 if (deviceName == "ESP32_GUANTE") {
                     isScanning = false
                     scanner.stopScan(this)
-                    Log.d("GuanteManager", "¡Guante encontrado! Intentando conexión GATT...")
                     bluetoothGatt = result.device.connectGatt(context, false, gattCallback)
                 }
-            }
-
-            override fun onScanFailed(errorCode: Int) {
-                Log.e("GuanteManager", "Fallo el escaneo de Bluetooth. Código: $errorCode")
-                isScanning = false
-                listener.onStatusChanged(false, 0)
             }
         }
 
         isScanning = true
         scanner?.startScan(scanCallback)
 
-        // TIMER DE SEGURIDAD: Si en 10 segundos no aparece el guante, detenemos la búsqueda
         Handler(Looper.getMainLooper()).postDelayed({
             if (isScanning) {
                 isScanning = false
                 scanner?.stopScan(scanCallback)
-                Log.d("GuanteManager", "Tiempo de búsqueda agotado. No se encontró ESP32_GUANTE.")
                 listener.onStatusChanged(false, 0)
             }
         }, 10000)
@@ -99,39 +90,31 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
         @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             if (status != BluetoothGatt.GATT_SUCCESS || newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.e("GuanteManager", "Error de conexión o dispositivo desconectado (Status: $status)")
                 listener.onStatusChanged(false, 0)
                 bluetoothGatt?.close()
                 bluetoothGatt = null
                 return
             }
-
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.d("GuanteManager", "Conectado al dispositivo físico exitosamente")
                 listener.onStatusChanged(true, 85)
                 gatt.discoverServices()
             }
         }
 
+        @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             val service = gatt.getService(UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"))
             val characteristic = service?.getCharacteristic(SENSOR_UUID)
             if (characteristic != null) {
-                @SuppressLint("MissingPermission")
                 gatt.setCharacteristicNotification(characteristic, true)
-
                 val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
                 descriptor?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                @SuppressLint("MissingPermission")
                 gatt.writeDescriptor(descriptor!!)
-            } else {
-                Log.e("GuanteManager", "No se encontró la característica del UUID en el ESP32.")
             }
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             val rawData = characteristic.getStringValue(0) ?: ""
-            listener.onRawDataReceived(rawData)
             processData(rawData)
         }
     }
@@ -139,22 +122,62 @@ class GuanteManager(private val context: Context, private val listener: GuanteLi
     private fun processData(data: String) {
         if (data.isEmpty()) return
         try {
-            val values = data.split(",")
-                .map { it.substringAfter(":").trim().toFloat() }
-                .toFloatArray()
+            // 1. Convertimos la trama "100,200,300..." en una lista de números
+            val partes = data.split(",")
+            val valuesParaIA = FloatArray(15) { 0f }
 
-            if (values.size >= 15) {
-                val input = Array(1) { values }
-                val output = Array(1) { FloatArray(9) }
-                tflite?.run(input, output)
-
-                val maxIndex = output[0].indices.maxByOrNull { output[0][it] } ?: -1
-                if (maxIndex != -1 && output[0][maxIndex] > 0.80f) {
-                    listener.onLetraDetectada(etiquetas[maxIndex])
+            for (i in partes.indices) {
+                if (i < 15) {
+                    valuesParaIA[i] = partes[i].trim().toFloatOrNull() ?: 0f
                 }
             }
+
+            // 2. ENVIAR AL DIAGNÓSTICO: Reconstruimos "S1:val,S2:val..." solo para la vista
+            val debugData = valuesParaIA.take(5).mapIndexed { i, v ->
+                "S${i + 1}:${v.toInt()}"
+            }.joinToString(",")
+
+            val intentRaw = Intent("GUANTE_RAW_DATA")
+            intentRaw.putExtra("data", debugData)
+            context.sendBroadcast(intentRaw)
+
+            listener.onRawDataReceived(debugData)
+
+            // 3. EJECUTAR INFERENCIA (Modelo de 15 entradas)
+            val input = Array(1) { valuesParaIA }
+            val output = Array(1) { FloatArray(etiquetas.size) }
+
+            tflite?.run(input, output)
+
+            val maxIndex = output[0].indices.maxByOrNull { output[0][it] } ?: -1
+            val confianza = if (maxIndex != -1) output[0][maxIndex] else 0f
+            val letraDetectada = if (maxIndex != -1) etiquetas[maxIndex] else "--"
+
+            // 4. ENVIAR RESULTADO IA AL DIAGNÓSTICO
+            val intentAI = Intent("GUANTE_AI_DATA").apply {
+                putExtra("letra", letraDetectada)
+                putExtra("confianza", (confianza * 100).toInt())
+            }
+            context.sendBroadcast(intentAI)
+
+            // 5. FILTRO DE ESTABILIDAD (0.5 Segundos)
+            if (confianza >= 0.80f) {
+                if (letraDetectada == letraTemporal) {
+                    if (System.currentTimeMillis() - tiempoInicioEstabilidad >= MARGEN_ESTABILIDAD) {
+                        listener.onLetraDetectada(letraDetectada)
+                        // Esperar 1.5s para la siguiente letra
+                        tiempoInicioEstabilidad = System.currentTimeMillis() + COOLDOWN_ENTRE_LETRAS
+                    }
+                } else {
+                    letraTemporal = letraDetectada
+                    tiempoInicioEstabilidad = System.currentTimeMillis()
+                }
+            } else {
+                letraTemporal = ""
+            }
+
         } catch (e: Exception) {
-            Log.e("GuanteManager", "Error en inferencia: ${e.message}")
+            Log.e("GuanteManager", "Error: ${e.message}")
         }
     }
 
