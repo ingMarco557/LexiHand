@@ -50,29 +50,22 @@ class DiagnosticsActivity : AppCompatActivity() {
         txtIAConfianza = findViewById(R.id.txtIAConfianza)
         pbConfianza = findViewById(R.id.pbConfianza)
 
-        txtTerminal.text = "> INICIANDO RECEPCIÓN..."
+        txtTerminal.text = "> INICIANDO RECEPCIÓN BLUETOOTH..."
     }
 
     private fun actualizarUI(rawData: String) {
         if (rawData.isEmpty()) return
 
         runOnUiThread {
-            // 1. Mostrar siempre el texto crudo en la terminal (arriba)
-            val actual = txtTerminal.text.toString().take(200)
+            val actual = txtTerminal.text.toString().take(150) // Limita el texto para no saturar memoria
             txtTerminal.text = "> $rawData\n$actual"
 
             try {
-                // 2. Parsear formato "S1:val,S2:val..."
-                // Limpiamos por si acaso hay espacios o caracteres raros
-                val limpio = rawData.replace(" ", "")
-                val partes = limpio.split(",")
-
+                val partes = rawData.split(",")
                 for (parte in partes) {
                     if (parte.contains(":")) {
                         val id = parte.substringBefore(":")
                         val valor = parte.substringAfter(":")
-
-                        // Actualizamos la fila correspondiente (S1, S2, etc.)
                         actualizarFila(id, valor)
                     }
                 }
@@ -83,18 +76,16 @@ class DiagnosticsActivity : AppCompatActivity() {
     }
 
     private fun actualizarFila(id: String, valor: String) {
+        // Al trabajar con MPU6050, los valores son float ej: 0.98. Pintamos verde por defecto.
         if (sensorViews.containsKey(id)) {
             val tv = sensorViews[id]
             tv?.text = "$id: [ $valor ]"
-            val num = valor.toIntOrNull() ?: 0
-            // Colores: AMARILLO si está en extremos (sensor sin contacto), VERDE si está en rango normal
-            tv?.setTextColor(if (num <= 50 || num >= 4050) Color.YELLOW else Color.parseColor("#00FF00"))
         } else {
             val newTv = TextView(this).apply {
                 text = "$id: [ $valor ]"
-                setTextColor(Color.parseColor("#00FF00"))
+                setTextColor(Color.parseColor("#00FF00")) // Verde tipo Matrix
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-                setPadding(0, 10, 0, 10)
+                setPadding(0, 8, 0, 8)
                 typeface = Typeface.MONOSPACE
             }
             layoutSensors.addView(newTv)
@@ -104,11 +95,12 @@ class DiagnosticsActivity : AppCompatActivity() {
 
     private fun actualizarPanelIA(letra: String, confianza: Int) {
         runOnUiThread {
-            txtIAResultado.text = "IA: $letra"
-            txtIAConfianza.text = "CONFIANZA: $confianza%"
+            txtIAResultado.text = "Gesto: $letra"
+            txtIAConfianza.text = "Confianza: $confianza%"
             pbConfianza.progress = confianza
-            // Verde si confianza >= 75%, Rojo si es menor
-            txtIAResultado.setTextColor(if (confianza >= 75) Color.GREEN else Color.RED)
+
+            // Si la confianza es alta (>= 80%), Verde. Si no, Amarillo.
+            txtIAResultado.setTextColor(if (confianza >= 80) Color.GREEN else Color.YELLOW)
         }
     }
 
@@ -118,7 +110,6 @@ class DiagnosticsActivity : AppCompatActivity() {
             addAction("GUANTE_RAW_DATA")
             addAction("GUANTE_AI_DATA")
         }
-        // RECEIVER_EXPORTED permite recibir datos de GuanteManager
         ContextCompat.registerReceiver(this, dataReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
     }
 

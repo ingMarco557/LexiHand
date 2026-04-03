@@ -3,8 +3,10 @@ package com.example.lexihand
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -27,6 +29,21 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
     private lateinit var viewPager: ViewPager2
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var guanteManager: GuanteManager
+
+    // --- NUEVO: Antena para escuchar a la IA y pasarlo al Fragmento ---
+    private val iaReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "GUANTE_AI_DATA") {
+                val letra = intent.getStringExtra("letra") ?: "--"
+
+                // Buscamos el fragmento del Traductor (ViewPager2 usa f0, f1, f2...)
+                val fragment = supportFragmentManager.findFragmentByTag("f1")
+                if (fragment is TraductorFragment) {
+                    fragment.onGestoDetectado(letra)
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,16 +71,31 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         verificarPermisosSolo()
     }
 
+    // Registramos la antena cuando la app está en pantalla
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("GUANTE_AI_DATA")
+        ContextCompat.registerReceiver(this, iaReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+    }
+
+    // Apagamos la antena si la app se minimiza para ahorrar batería
+    override fun onPause() {
+        super.onPause()
+        try {
+            unregisterReceiver(iaReceiver)
+        } catch (e: Exception) {
+            // Ignorar si no estaba registrado
+        }
+    }
+
     private fun inicializarEstadoUI() {
         onStatusChanged(false, 0)
     }
 
-    // --- CORRECCIÓN CLAVE: Función de vinculación con validación de Bluetooth ---
     fun iniciarVinculacion() {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val adapter = bluetoothManager.adapter
 
-        // Si el celular no tiene Bluetooth o está apagado, te avisa y pide encenderlo
         if (adapter == null || !adapter.isEnabled) {
             Toast.makeText(this, "Enciende el Bluetooth para conectar el guante", Toast.LENGTH_LONG).show()
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -80,13 +112,12 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         guanteManager.connect()
     }
 
-    // --- CORRECCIÓN CLAVE: Permisos completos ---
     private fun verificarPermisosSolo() {
         val permisos = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permisos.add(Manifest.permission.BLUETOOTH_SCAN)
             permisos.add(Manifest.permission.BLUETOOTH_CONNECT)
-            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION) // Vital para buscar dispositivos nuevos
+            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
         } else {
             permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
@@ -108,6 +139,7 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         }
     }
 
+    // Único método requerido por nuestra nueva versión de GuanteListener
     override fun onStatusChanged(conectado: Boolean, bateria: Int) {
         runOnUiThread {
             val statusDot = findViewById<View>(R.id.statusDot)
@@ -128,16 +160,12 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         }
     }
 
-    override fun onLetraDetectada(letra: String) {
-        runOnUiThread {
-            val fragment = supportFragmentManager.findFragmentByTag("f1")
-            if (fragment is TraductorFragment) {
-                fragment.onGestoDetectado(letra)
-            }
-        }
+    // --- NUEVO: Función para abrir el panel de Diagnóstico Mecatrónico ---
+    // Llama a esta función desde el botón que tú quieras (ej. en tu MenuFragment)
+    fun abrirPanelDiagnostico() {
+        val intent = Intent(this, DiagnosticsActivity::class.java)
+        startActivity(intent)
     }
-
-    override fun onRawDataReceived(data: String) {}
 
     private fun setupViewPagerListener() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
