@@ -39,51 +39,39 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
             insets
         }
 
-        // 1. Configurar Navegación y ViewPager
         viewPager = findViewById(R.id.viewPager)
         bottomNav = findViewById(R.id.bottomNav)
         viewPager.adapter = ViewPagerAdapter(this)
+        viewPager.offscreenPageLimit = 3
 
-        // 2. Inicializar el motor del guante
         guanteManager = GuanteManager(this, this)
 
-        // 3. Configurar Listeners
         setupViewPagerListener()
         setupBottomNavListener()
-        inicializarEstadoUI()
 
-        // 4. Solicitar permisos de Bluetooth y Ubicación
+        // Verificación inicial de Bluetooth
         verificarPermisosSolo()
     }
 
-    private fun inicializarEstadoUI() {
-        // Estado inicial por defecto
-        onStatusChanged(false, 0)
-    }
-
-    /**
-     * Esta función la llaman tus Fragmentos (ej: HomeFragment) para conectar el guante
-     */
     fun iniciarVinculacion() {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val adapter = bluetoothManager.adapter
 
-        if (adapter == null || !adapter.isEnabled) {
-            Toast.makeText(this, "Enciende el Bluetooth", Toast.LENGTH_LONG).show()
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-             // startActivity(enableBtIntent)      //quitar el comentario de esta
+        if (adapter == null) {
+            Toast.makeText(this, "El dispositivo no soporta Bluetooth", Toast.LENGTH_LONG).show()
             return
         }
 
-        runOnUiThread {
-            val txtStatus = findViewById<TextView>(R.id.txtBLEStatus)
-            txtStatus?.text = "Buscando guante..."
+        if (!adapter.isEnabled) {
+            Toast.makeText(this, "Por favor, enciende el Bluetooth", Toast.LENGTH_LONG).show()
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivity(enableBtIntent)
+            return
         }
 
+        findViewById<TextView>(R.id.txtBLEStatus)?.text = "Buscando guante..."
         guanteManager.connect()
     }
-
-    // --- MÉTODOS DEL GUANTE LISTENER ---
 
     override fun onStatusChanged(conectado: Boolean, bateria: Int) {
         runOnUiThread {
@@ -105,27 +93,21 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         }
     }
 
-    // --- NAVEGACIÓN Y PERMISOS ---
-
-    fun abrirPanelDiagnostico() {
-        val intent = Intent(this, DiagnosticsActivity::class.java)
-        startActivity(intent)
-    }
-
     private fun verificarPermisosSolo() {
         val permisos = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permisos.add(Manifest.permission.BLUETOOTH_SCAN)
             permisos.add(Manifest.permission.BLUETOOTH_CONNECT)
+        } else {
+            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-        permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
 
         val faltanPermisos = permisos.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
+        }.toTypedArray()
 
         if (faltanPermisos.isNotEmpty()) {
-            requestPermissionLauncher.launch(faltanPermisos.toTypedArray())
+            requestPermissionLauncher.launch(faltanPermisos)
         }
     }
 
@@ -133,14 +115,13 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
         if (!results.all { it.value }) {
-            Toast.makeText(this, "Se requieren permisos para usar el guante", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Se requieren permisos para el guante", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupViewPagerListener() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
                 bottomNav.menu.getItem(position).isChecked = true
             }
         })
@@ -153,7 +134,6 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
                 R.id.traductorFragment -> viewPager.currentItem = 1
                 R.id.juegosFragment -> viewPager.currentItem = 2
                 R.id.perfilFragment -> viewPager.currentItem = 3
-                else -> return@setOnItemSelectedListener false
             }
             true
         }

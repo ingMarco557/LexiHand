@@ -7,12 +7,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +19,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -28,13 +28,11 @@ import java.util.*
 
 class TraductorFragment : Fragment() {
 
-    private lateinit var messageList: MutableList<Message>
+    private var messageList = mutableListOf<Message>()
     private lateinit var adapter: ChatAdapter
     private lateinit var rvChat: RecyclerView
     private var tts: TextToSpeech? = null
     private var ttsReady = false
-
-    // --- NUEVO: Bandera para saber si la App está hablando ---
     private var estaHablando = false
 
     private var palabraActual = ""
@@ -45,35 +43,30 @@ class TraductorFragment : Fragment() {
 
     private val guanteReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == "GUANTE_AI_DATA") {
-                // SI LA APP ESTÁ HABLANDO, IGNORAMOS EL GUANTE
+            if (intent?.action == "GUANTE_AI_DATA" && isAdded) {
                 if (estaHablando) return
-
-                val letra = intent.getStringExtra("letra") ?: "--"
+                val letra = intent.getStringExtra("letra") ?: return
                 val confianza = intent.getIntExtra("confianza", 0)
 
-                if (confianza >= 85 && letra != "--") {
+                if (confianza >= 85) {
                     onGestoDetectado(letra)
                 }
             }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_traductor, container, false)
 
-        messageList = mutableListOf()
         rvChat = root.findViewById(R.id.rvChat)
-        adapter = ChatAdapter(messageList)
-        rvChat.layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = true }
-        rvChat.adapter = adapter
-
         txtWorkbench = root.findViewById(R.id.txtPalabraEnFormacion)
         btnAccion = root.findViewById(R.id.btnEnviarPalabra)
         val btnBorrar = root.findViewById<ImageButton>(R.id.btnBorrarLetra)
+        val btnMic = root.findViewById<FloatingActionButton>(R.id.btnMic)
+
+        adapter = ChatAdapter(messageList)
+        rvChat.layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = true }
+        rvChat.adapter = adapter
 
         btnAccion.setOnClickListener {
             if (modoEnviarActivo && palabraActual.isNotEmpty()) {
@@ -92,84 +85,61 @@ class TraductorFragment : Fragment() {
             }
         }
 
-       /* root.findViewById<FloatingActionButton>(R.id.btnMic).setOnClickListener {
-            startVoiceRecognition()
-        }*/  //quitar el comentario de esta
+        btnMic.setOnClickListener { startVoiceRecognition() }
 
-        // --- CONFIGURACIÓN DE VOZ CON DETECTOR DE SILENCIO ---
+        initTTS()
+        return root
+    }
+
+    private fun initTTS() {
         tts = TextToSpeech(requireContext()) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale("es", "MX")
                 ttsReady = true
-
-                // Configuramos el "oído" del TTS
                 tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                    override fun onStart(utteranceId: String?) {
-                        estaHablando = true
-                        activity?.runOnUiThread {
-                            txtWorkbench.setTextColor(Color.GRAY) // Visualmente indicamos pausa
-                        }
-                    }
-
-                    override fun onDone(utteranceId: String?) {
-                        estaHablando = false
-                        activity?.runOnUiThread {
-                            txtWorkbench.setTextColor(Color.BLACK)
-                        }
-                    }
-
-                    override fun onError(utteranceId: String?) {
-                        estaHablando = false
-                    }
+                    override fun onStart(id: String?) { estaHablando = true }
+                    override fun onDone(id: String?) { estaHablando = false }
+                    override fun onError(id: String?) { estaHablando = false }
                 })
             }
         }
-
-        return root
     }
 
     private fun onGestoDetectado(letra: String) {
-        activity?.runOnUiThread {
-            if (letra == ultimaLetraAgregada) return@runOnUiThread
+        if (letra == ultimaLetraAgregada) return
 
+        activity?.runOnUiThread {
             if (letra == "S") {
                 if (palabraActual.isNotEmpty() && !palabraActual.endsWith(" ")) {
                     palabraActual += " "
-                    txtWorkbench.text = palabraActual
                 }
-                ultimaLetraAgregada = letra
-                return@runOnUiThread
+            } else {
+                palabraActual += letra
             }
 
-            palabraActual += letra
             txtWorkbench.text = palabraActual
             ultimaLetraAgregada = letra
-
-            if (!modoEnviarActivo) {
-                actualizarEstadoBoton(true)
-            }
+            if (!modoEnviarActivo) actualizarEstadoBoton(true)
         }
     }
 
     private fun actualizarEstadoBoton(activarEnviar: Boolean) {
         modoEnviarActivo = activarEnviar
-        if (activarEnviar) {
-            btnAccion.text = "Enviar"
-            btnAccion.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4CAF50"))
-        } else {
-            btnAccion.text = "Escribir"
-            btnAccion.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#757575"))
-        }
+        btnAccion.text = if (activarEnviar) "Enviar" else "Escribir"
+        val color = if (activarEnviar) "#4CAF50" else "#757575"
+        btnAccion.backgroundTintList = ColorStateList.valueOf(Color.parseColor(color))
     }
 
     private fun enviarPalabraFinal(palabra: String) {
-        addMessage(Message(palabra, SenderType.GUANTE))
+        val newMessage = Message(palabra, SenderType.GUANTE)
+        messageList.add(newMessage)
+        adapter.notifyItemInserted(messageList.size - 1)
+        rvChat.scrollToPosition(messageList.size - 1)
 
         if (ttsReady) {
-            // Es vital pasar un ID (en este caso "ID_GUANTE") para que el Listener funcione
             val params = Bundle()
-            params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ID_GUANTE")
-            tts?.speak(palabra, TextToSpeech.QUEUE_FLUSH, params, "ID_GUANTE")
+            params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ID_G")
+            tts?.speak(palabra, TextToSpeech.QUEUE_FLUSH, params, "ID_G")
         }
 
         palabraActual = ""
@@ -178,38 +148,46 @@ class TraductorFragment : Fragment() {
         actualizarEstadoBoton(false)
     }
 
-    private fun addMessage(message: Message) {
-        messageList.add(message)
-        adapter.notifyDataSetChanged()
-        rvChat.smoothScrollToPosition(messageList.size - 1)
-    }
-
     private fun startVoiceRecognition() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Escuchando...")
         }
-        startActivityForResult(intent, 100)
+        try {
+            startActivityForResult(intent, 100)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Microfono no disponible", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
-            val spokenText = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0) ?: ""
-            addMessage(Message(spokenText, SenderType.PERSONA_2))
+            val res = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            if (!res.isNullOrEmpty()) {
+                messageList.add(Message(res[0], SenderType.PERSONA_2))
+                adapter.notifyItemInserted(messageList.size - 1)
+                rvChat.scrollToPosition(messageList.size - 1)
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
         val filter = IntentFilter("GUANTE_AI_DATA")
-        ContextCompat.registerReceiver(requireContext(), guanteReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+        // Corrección para Android 13/14+: Especificar RECEIVER_EXPORTED o NOT_EXPORTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(guanteReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+        } else {
+            requireContext().registerReceiver(guanteReceiver, filter)
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        requireContext().unregisterReceiver(guanteReceiver)
+        try {
+            requireContext().unregisterReceiver(guanteReceiver)
+        } catch (e: Exception) { }
     }
 
     override fun onDestroy() {
