@@ -1,87 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient"
-    tools:context=".login">
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/logoImage"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="80dp"
-        android:src="@drawable/logophotoroom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Inicio de sesion"
-        android:textColor="#FFFFFF"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logoImage" />
+        android:paddingBottom="40dp"
+        tools:context=".login">
 
-    <EditText
-        android:id="@+id/etUser"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="40dp"
-        android:background="@drawable/input_background"
-        android:hint="Nombre de usuario"
-        android:paddingStart="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+        <ImageView
+            android:id="@+id/logoImage"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="60dp"
+            android:src="@drawable/logophotoroom"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/input_background"
-        android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:paddingStart="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/etUser"
-        app:layout_constraintStart_toStartOf="@+id/etUser"
-        app:layout_constraintTop_toBottomOf="@+id/etUser" />
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Inicio de sesión"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/logoImage" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnLogin"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/button_gradient"
-        android:text="Iniciar sesion"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/etPassword"
-        app:layout_constraintStart_toStartOf="@+id/etPassword"
-        app:layout_constraintTop_toBottomOf="@+id/etPassword" />
+        <EditText
+            android:id="@+id/etUser"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/input_background"
+            android:hint="Correo o Nombre de usuario"
+            android:textColorHint="#A0A0A0"
+            android:textColor="#000000"
+            android:paddingStart="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
-    <TextView
-        android:id="@+id/tvRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="No tienes cuenta? Regístrate"
-        android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/input_background"
+            android:hint="Contraseña"
+            android:textColorHint="#A0A0A0"
+            android:textColor="#000000"
+            android:inputType="textPassword"
+            android:paddingStart="20dp"
+            app:layout_constraintEnd_toEndOf="@+id/etUser"
+            app:layout_constraintStart_toStartOf="@+id/etUser"
+            app:layout_constraintTop_toBottomOf="@+id/etUser" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/layoutRegistroExtra"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="@+id/etUser"
+            app:layout_constraintStart_toStartOf="@+id/etUser"
+            app:layout_constraintTop_toBottomOf="@+id/etPassword">
+
+            <EditText
+                android:id="@+id/etEdad"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/input_background"
+                android:hint="Edad (Para ajustar sensores)"
+                android:textColorHint="#A0A0A0"
+                android:textColor="#000000"
+                android:inputType="number"
+                android:paddingStart="20dp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mano donde usas el guante:"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgMano"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+                <RadioButton android:id="@+id/rbIzquierda" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Izquierda" android:textColor="#FFFFFF" android:buttonTint="#FFFFFF"/>
+                <RadioButton android:id="@+id/rbDerecha" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Derecha" android:checked="true" android:textColor="#FFFFFF" android:buttonTint="#FFFFFF"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nivel de experiencia:"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgNivel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <RadioButton android:id="@+id/rbPrincipiante" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Principiante" android:checked="true" android:textColor="#FFFFFF" android:buttonTint="#FFFFFF"/>
+                <RadioButton android:id="@+id/rbExperto" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Experto" android:textColor="#FFFFFF" android:buttonTint="#FFFFFF"/>
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnLogin"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/button_gradient"
+            android:text="Iniciar sesión"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="@+id/etUser"
+            app:layout_constraintStart_toStartOf="@+id/etUser"
+            app:layout_constraintTop_toBottomOf="@+id/layoutRegistroExtra" />
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="¿No tienes cuenta? Regístrate"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

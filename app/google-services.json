@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "136259274555",
+    "project_id": "lexihand-bfe1a",
+    "storage_bucket": "lexihand-bfe1a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:136259274555:android:310bab45df0af52112191e",
+        "android_client_info": {
+          "package_name": "com.example.lexihand"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBcBe0bCz5yLKRGolegr4A-0uP9Y9vdNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
