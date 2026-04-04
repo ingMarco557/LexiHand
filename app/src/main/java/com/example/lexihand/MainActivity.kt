@@ -3,10 +3,8 @@ package com.example.lexihand
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -30,21 +28,6 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var guanteManager: GuanteManager
 
-    // --- NUEVO: Antena para escuchar a la IA y pasarlo al Fragmento ---
-    private val iaReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == "GUANTE_AI_DATA") {
-                val letra = intent.getStringExtra("letra") ?: "--"
-
-                // Buscamos el fragmento del Traductor (ViewPager2 usa f0, f1, f2...)
-                val fragment = supportFragmentManager.findFragmentByTag("f1")
-                if (fragment is TraductorFragment) {
-                    fragment.onGestoDetectado(letra)
-                }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -56,48 +39,37 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
             insets
         }
 
+        // 1. Configurar Navegación y ViewPager
         viewPager = findViewById(R.id.viewPager)
         bottomNav = findViewById(R.id.bottomNav)
         viewPager.adapter = ViewPagerAdapter(this)
 
-        inicializarEstadoUI()
-
+        // 2. Inicializar el motor del guante
         guanteManager = GuanteManager(this, this)
 
+        // 3. Configurar Listeners
         setupViewPagerListener()
         setupBottomNavListener()
+        inicializarEstadoUI()
 
-        // Solicitar todos los permisos necesarios
+        // 4. Solicitar permisos de Bluetooth y Ubicación
         verificarPermisosSolo()
     }
 
-    // Registramos la antena cuando la app está en pantalla
-    override fun onResume() {
-        super.onResume()
-        val filter = IntentFilter("GUANTE_AI_DATA")
-        ContextCompat.registerReceiver(this, iaReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
-    }
-
-    // Apagamos la antena si la app se minimiza para ahorrar batería
-    override fun onPause() {
-        super.onPause()
-        try {
-            unregisterReceiver(iaReceiver)
-        } catch (e: Exception) {
-            // Ignorar si no estaba registrado
-        }
-    }
-
     private fun inicializarEstadoUI() {
+        // Estado inicial por defecto
         onStatusChanged(false, 0)
     }
 
+    /**
+     * Esta función la llaman tus Fragmentos (ej: HomeFragment) para conectar el guante
+     */
     fun iniciarVinculacion() {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val adapter = bluetoothManager.adapter
 
         if (adapter == null || !adapter.isEnabled) {
-            Toast.makeText(this, "Enciende el Bluetooth para conectar el guante", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Enciende el Bluetooth", Toast.LENGTH_LONG).show()
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivity(enableBtIntent)
             return
@@ -106,40 +78,13 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         runOnUiThread {
             val txtStatus = findViewById<TextView>(R.id.txtBLEStatus)
             txtStatus?.text = "Buscando guante..."
-            txtStatus?.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
         }
 
         guanteManager.connect()
     }
 
-    private fun verificarPermisosSolo() {
-        val permisos = mutableListOf<String>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permisos.add(Manifest.permission.BLUETOOTH_SCAN)
-            permisos.add(Manifest.permission.BLUETOOTH_CONNECT)
-            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
-            permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+    // --- MÉTODOS DEL GUANTE LISTENER ---
 
-        val faltanPermisos = permisos.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-
-        if (faltanPermisos.isNotEmpty()) {
-            requestPermissionLauncher.launch(faltanPermisos.toTypedArray())
-        }
-    }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        if (!results.all { it.value }) {
-            Toast.makeText(this, "Acepta los permisos de Ubicación y Dispositivos Cercanos", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    // Único método requerido por nuestra nueva versión de GuanteListener
     override fun onStatusChanged(conectado: Boolean, bateria: Int) {
         runOnUiThread {
             val statusDot = findViewById<View>(R.id.statusDot)
@@ -160,11 +105,36 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         }
     }
 
-    // --- NUEVO: Función para abrir el panel de Diagnóstico Mecatrónico ---
-    // Llama a esta función desde el botón que tú quieras (ej. en tu MenuFragment)
+    // --- NAVEGACIÓN Y PERMISOS ---
+
     fun abrirPanelDiagnostico() {
         val intent = Intent(this, DiagnosticsActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun verificarPermisosSolo() {
+        val permisos = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permisos.add(Manifest.permission.BLUETOOTH_SCAN)
+            permisos.add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
+        permisos.add(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        val faltanPermisos = permisos.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (faltanPermisos.isNotEmpty()) {
+            requestPermissionLauncher.launch(faltanPermisos.toTypedArray())
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        if (!results.all { it.value }) {
+            Toast.makeText(this, "Se requieren permisos para usar el guante", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setupViewPagerListener() {
