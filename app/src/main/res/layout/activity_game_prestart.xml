@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tv_prestart_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Prepárate!"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tv_prestart_instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Instrucciones: Se mostrará una imagen y tendrás 10 segundos para adivinar la letra correcta. ¡No pierdas tiempo!"
+        android:textSize="18sp"
+        android:textColor="#555555"
+        android:gravity="center"
+        android:layout_marginBottom="48dp" />
+
+    <Button
+        android:id="@+id/btn_prestart_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="COMENZAR"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#4CAF50" /> <Button
+    android:id="@+id/btn_prestart_exit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Salir"
+    android:backgroundTint="@android:color/darker_gray" />
+
+</LinearLayout>

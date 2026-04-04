@@ -1,59 +1,85 @@
 package com.example.lexihand
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [JuegosFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class JuegosFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        // Inflamos el diseño de tu fragment_juegos.xml
         return inflater.inflate(R.layout.fragment_juegos, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment JuegosFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            JuegosFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    // 🌟 AQUÍ OCURRE LA MAGIA: onViewCreated se ejecuta justo después de que la pantalla se dibuja
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // --- CONTROLES JUEGO 1: Adivinar la Seña ---
+        val btnGameOneHeader: Button = view.findViewById(R.id.btn_game_one_header)
+        val layoutSubmenuGameOne: LinearLayout = view.findViewById(R.id.layout_submenu_game_one)
+        val btnGameOneQuick: Button = view.findViewById(R.id.btn_game_one_quick)
+        val btnGameOneFull: Button = view.findViewById(R.id.btn_game_one_full)
+
+        btnGameOneHeader.setOnClickListener {
+            layoutSubmenuGameOne.visibility = if (layoutSubmenuGameOne.visibility == View.GONE) View.VISIBLE else View.GONE
+        }
+        btnGameOneQuick.setOnClickListener { startGame1("QUICK") }
+        btnGameOneFull.setOnClickListener { startGame1("FULL") }
+
+
+        // --- CONTROLES JUEGO 2: Descifrar la Palabra ---
+        // (Asegúrate de que los IDs coincidan con tu XML)
+        val btnGameTwoHeader: Button = view.findViewById(R.id.btn_game_two_header)
+        val layoutSubmenuGameTwo: LinearLayout = view.findViewById(R.id.layout_submenu_game_two)
+        val btnGameTwoQuick: Button = view.findViewById(R.id.btn_game_two_quick)
+        val btnGameTwoFull: Button = view.findViewById(R.id.btn_game_two_full)
+
+        btnGameTwoHeader.setOnClickListener {
+            layoutSubmenuGameTwo.visibility = if (layoutSubmenuGameTwo.visibility == View.GONE) View.VISIBLE else View.GONE
+        }
+        btnGameTwoQuick.setOnClickListener { startGame2("QUICK") }
+        btnGameTwoFull.setOnClickListener { startGame2("FULL") }
+
+
+        // --- CONTROLES JUEGO 3: Réplica la Imagen ---
+        val btnGameThreeHeader: Button = view.findViewById(R.id.btn_game_three_header)
+        val layoutSubmenuGameThree: LinearLayout = view.findViewById(R.id.layout_submenu_game_three)
+        val btnGameThreeQuick: Button = view.findViewById(R.id.btn_game_three_quick)
+        val btnGameThreeFull: Button = view.findViewById(R.id.btn_game_three_full)
+
+        btnGameThreeHeader.setOnClickListener {
+            layoutSubmenuGameThree.visibility = if (layoutSubmenuGameThree.visibility == View.GONE) View.VISIBLE else View.GONE
+        }
+        btnGameThreeQuick.setOnClickListener { startGame3("QUICK") }
+        btnGameThreeFull.setOnClickListener { startGame3("FULL") }
+    }
+
+    // --- FUNCIONES PARA ABRIR LOS JUEGOS ---
+    // Usamos requireContext() en lugar de 'this' porque estamos en un Fragmento
+    private fun startGame1(mode: String) {
+        val intent = Intent(requireContext(), GamePrestartActivity::class.java)
+        intent.putExtra("GAME_MODE", mode)
+        startActivity(intent)
+    }
+
+    private fun startGame2(mode: String) {
+        val intent = Intent(requireContext(), Game2PrestartActivity::class.java)
+        intent.putExtra("GAME_MODE", mode)
+        startActivity(intent)
+    }
+
+    private fun startGame3(mode: String) {
+        val intent = Intent(requireContext(), Game3PrestartActivity::class.java)
+        intent.putExtra("GAME_MODE", mode)
+        startActivity(intent)
     }
 }

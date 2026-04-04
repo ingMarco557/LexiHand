@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#FFEAEE">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reglas del Juego:"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Se te mostrará una serie de imágenes en Lengua de Señas. Deberás descifrar la palabra y escribirla antes de que se acaben los 10 segundos.\n\nVeamos de qué estás hecho..."
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/btn_start_game2"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="¡Aceptar el reto!"
+        android:textSize="20sp"
+        android:backgroundTint="#FF4081" />
+</LinearLayout>

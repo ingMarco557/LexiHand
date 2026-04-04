@@ -1,99 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardDiagnostics"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212">
+    android:background="#121212"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <LinearLayout
-        android:id="@+id/main"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="MÓDULO DE TRADUCCIÓN IA"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E1E1E"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:layout_marginTop="8dp">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="DIAGNÓSTICO MECATRÓNICO"
-            android:textColor="#00FF00"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="20dp"/>
-
-        <LinearLayout
-            android:id="@+id/layoutSensorsRaw"
+            android:id="@+id/txtIAResultado"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:gravity="center"
+            android:text="Gesto: --"
+            android:textColor="#00FF00"
+            android:textSize="48sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtRawTerminal"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="#000000"
-            android:textColor="#00FF00"
-            android:typeface="monospace"
-            android:text="Esperando trama de datos..."
-            android:padding="8dp"
-            android:layout_marginTop="16dp"
-            android:elevation="4dp"/>
-
-        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/txtIAConfianza"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:cardBackgroundColor="#1A1A1A"
-            app:cardCornerRadius="12dp"
-            app:strokeColor="#00FF00"
-            app:strokeWidth="1dp">
+            android:gravity="center"
+            android:text="Confianza: 0%"
+            android:textColor="#AAAAAA"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ESTADO DE INFERENCIA (IA)"
-                    android:textColor="#00FF00"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtIAResultado"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="LETRA: --"
-                    android:textColor="#FFFFFF"
-                    android:textSize="32sp"
-                    android:textStyle="bold"
-                    android:typeface="monospace"
-                    android:layout_marginTop="8dp"/>
-
-                <TextView
-                    android:id="@+id/txtIAConfianza"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="CONFIANZA: 0%"
-                    android:textColor="#00FF00"
-                    android:typeface="monospace"
-                    android:layout_marginBottom="8dp"/>
-
-                <ProgressBar
-                    android:id="@+id/pbConfianza"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:progress="0"
-                    android:max="100"
-                    android:progressTint="#00FF00"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
+        <ProgressBar
+            android:id="@+id/pbConfianza"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:max="100"
+            android:progress="0"
+            android:progressTint="#00FF00" />
     </LinearLayout>
-</ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="16dp"
+        android:background="#333333" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ESTADO DE SENSORES (EJE X)"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/layoutSensorsRaw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E1E1E"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:orientation="vertical">
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="16dp"
+        android:background="#333333" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TERMINAL RAW BLUETOOTH"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtRawTerminal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:background="#000000"
+        android:fontFamily="monospace"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="#00FF00"
+        android:textSize="12sp" />
+
+</LinearLayout>
