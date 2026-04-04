@@ -74,16 +74,10 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="150dp">
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btnMic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            app:fabCustomSize="90dp"
-            android:src="@android:drawable/ic_btn_speak_now"
-            app:tint="@color/white"
-            android:backgroundTint="#4CAF50"
-            app:maxImageSize="45dp"/>
+
     </RelativeLayout>
+
+
+
 
 </LinearLayout>

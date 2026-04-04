@@ -92,9 +92,9 @@ class TraductorFragment : Fragment() {
             }
         }
 
-        root.findViewById<FloatingActionButton>(R.id.btnMic).setOnClickListener {
+       /* root.findViewById<FloatingActionButton>(R.id.btnMic).setOnClickListener {
             startVoiceRecognition()
-        }
+        }*/  //quitar el comentario de esta
 
         // --- CONFIGURACIÓN DE VOZ CON DETECTOR DE SILENCIO ---
         tts = TextToSpeech(requireContext()) { status ->
