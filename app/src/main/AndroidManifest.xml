@@ -45,6 +45,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".GamePrestartActivity" />
+        <activity android:name=".GameActivity" />
+        <activity android:name=".ResultActivity" />
+
+
+        <activity android:name=".Game2PrestartActivity" />
+        <activity android:name=".Game2Activity" />
+        <activity android:name=".Game2ResultActivity" />
+
+
+        <activity android:name=".Game3PrestartActivity" />
+        <activity android:name=".Game3Activity" />
+        <activity android:name=".Game3ResultActivity" />
+
+
+
+
     </application>
 
 </manifest>
