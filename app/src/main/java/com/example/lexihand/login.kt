@@ -23,14 +23,14 @@ class login : AppCompatActivity() {
         // 1. Inicializar el Manager
         authManager = AuthManager(this)
 
-        // 2. VERIFICACIÓN DE SESIÓN AUTOMÁTICA (MODO OFFLINE/ONLINE)
-        // Si ya existe una sesión guardada en el teléfono, saltamos directo al Main
+        // 2. VERIFICACIÓN DE SESIÓN AUTOMÁTICA
+        // Si el usuario ya está logueado, saltamos el login.
         if (authManager.verificarSesionActiva()) {
             irAlMenuPrincipal()
-            return // Detiene la ejecución para no cargar el layout de login innecesariamente
+            return
         }
 
-        // 3. Si no hay sesión, cargamos la interfaz
+        // 3. Cargar la interfaz
         setContentView(R.layout.activity_login)
 
         // Referencias a los elementos visuales
@@ -49,13 +49,11 @@ class login : AppCompatActivity() {
             isLoginMode = !isLoginMode
 
             if (isLoginMode) {
-                // MODO: INICIAR SESIÓN
                 tvTitle.text = "Inicio de sesión"
                 layoutRegistroExtra.visibility = View.GONE
                 btnLogin.text = "Iniciar sesión"
                 tvRegister.text = "¿No tienes cuenta? Regístrate"
             } else {
-                // MODO: REGISTRO
                 tvTitle.text = "Crear Cuenta"
                 layoutRegistroExtra.visibility = View.VISIBLE
                 btnLogin.text = "Registrarse"
@@ -68,54 +66,61 @@ class login : AppCompatActivity() {
             val user = etUser.text.toString().trim()
             val pass = etPassword.text.toString().trim()
 
+            // Validación básica de campos comunes
             if (user.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Completa usuario y contraseña", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, completa usuario y contraseña", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (isLoginMode) {
-                // --- PROCESO DE INICIO DE SESIÓN (Híbrido Online/Offline) ---
+                // --- PROCESO DE INICIO DE SESIÓN ---
                 authManager.loginUser(user, pass) { exito, mensaje ->
                     if (exito) {
                         Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
                         irAlMenuPrincipal()
                     } else {
-                        // Aquí el mensaje dirá si la cuenta no existe localmente
                         Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
                     }
                 }
 
             } else {
-                // --- PROCESO DE REGISTRO (Firebase + Local) ---
+                // --- PROCESO DE REGISTRO ---
                 val edad = etEdad.text.toString().trim()
+
+                // Validación de campos extra de registro
                 if (edad.isEmpty()) {
-                    Toast.makeText(this, "La edad es obligatoria para calibrar el guante", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "La edad es obligatoria", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                // Obtener selecciones de los RadioButtons
+                // Validación de RadioButtons (Evita que la app truene si no hay nada marcado)
                 val seleccionadoManoId = rgMano.checkedRadioButtonId
                 val seleccionadoNivelId = rgNivel.checkedRadioButtonId
+
+                if (seleccionadoManoId == -1 || seleccionadoNivelId == -1) {
+                    Toast.makeText(this, "Selecciona mano y nivel de experiencia", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
                 val mano = findViewById<RadioButton>(seleccionadoManoId).text.toString()
                 val nivel = findViewById<RadioButton>(seleccionadoNivelId).text.toString()
 
                 // Preparar datos para Firestore
                 val datosUsuario = hashMapOf(
-                    "nombre" to user.split("@")[0], // Nombre base
+                    "nombre" to user.split("@")[0],
                     "edad" to edad,
                     "mano" to mano,
                     "nivel" to nivel,
                     "rol" to if (user.endsWith("@lexihand.dev")) "admin" else "user"
                 )
 
-                // Llamada al registro en la nube con persistencia local
+                // Llamada al registro en la nube
                 authManager.registerUserCloud(user, pass, datosUsuario) { exito, mensaje ->
                     if (exito) {
-                        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "¡Bienvenido a LexiHand!", Toast.LENGTH_SHORT).show()
                         irAlMenuPrincipal()
                     } else {
-                        Toast.makeText(this, "Error: $mensaje", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -124,7 +129,9 @@ class login : AppCompatActivity() {
 
     private fun irAlMenuPrincipal() {
         val intent = Intent(this, MainActivity::class.java)
+        // Bandera de seguridad: limpia el historial de actividades para que no se pueda volver al login con "atrás"
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-        finish() // Elimina esta actividad de la pila para que no regresen con el botón "Atrás"
+        finish()
     }
 }
