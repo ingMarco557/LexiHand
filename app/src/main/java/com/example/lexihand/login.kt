@@ -2,134 +2,151 @@ package com.example.lexihand
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import com.google.android.material.textfield.TextInputLayout
 
 class login : AppCompatActivity() {
 
     private lateinit var authManager: AuthManager
-    private var isLoginMode = true // true = Inicio de sesión, false = Registro
+    private var isLoginMode = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // 1. Inicializar el Manager
         authManager = AuthManager(this)
 
-        // 2. VERIFICACIÓN DE SESIÓN AUTOMÁTICA
-        // Si el usuario ya está logueado, saltamos el login.
         if (authManager.verificarSesionActiva()) {
             irAlMenuPrincipal()
             return
         }
 
-        // 3. Cargar la interfaz
         setContentView(R.layout.activity_login)
 
-        // Referencias a los elementos visuales
-        val tvTitle = findViewById<TextView>(R.id.tvTitle)
+        // Referencias de Contenedores (Para mostrar errores)
+        val tilEmail = findViewById<TextInputLayout>(R.id.tilEmail)
+        val tilPassword = findViewById<TextInputLayout>(R.id.tilPassword)
+        val tilNombre = findViewById<TextInputLayout>(R.id.tilNombre)
+        val tilEdad = findViewById<TextInputLayout>(R.id.tilEdad)
+
+        // Referencias de Campos
         val etUser = findViewById<EditText>(R.id.etUser)
         val etPassword = findViewById<EditText>(R.id.etPassword)
-        val layoutRegistroExtra = findViewById<LinearLayout>(R.id.layoutRegistroExtra)
+        val etNombre = findViewById<EditText>(R.id.etNombre)
         val etEdad = findViewById<EditText>(R.id.etEdad)
+
+        val layoutRegistroExtra = findViewById<LinearLayout>(R.id.layoutRegistroExtra)
         val rgMano = findViewById<RadioGroup>(R.id.rgMano)
-        val rgNivel = findViewById<RadioGroup>(R.id.rgNivel)
+        val cbTerms = findViewById<CheckBox>(R.id.cbTerms)
         val btnLogin = findViewById<AppCompatButton>(R.id.btnLogin)
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
+        val tvTitle = findViewById<TextView>(R.id.tvTitle)
 
-        // Lógica para cambiar entre Iniciar Sesión y Registrarse
         tvRegister.setOnClickListener {
             isLoginMode = !isLoginMode
+            limpiarErrores(tilEmail, tilPassword, tilNombre, tilEdad)
 
             if (isLoginMode) {
-                tvTitle.text = "Inicio de sesión"
+                tvTitle.text = "Bienvenido"
                 layoutRegistroExtra.visibility = View.GONE
                 btnLogin.text = "Iniciar sesión"
                 tvRegister.text = "¿No tienes cuenta? Regístrate"
             } else {
-                tvTitle.text = "Crear Cuenta"
+                tvTitle.text = "Crea tu cuenta"
                 layoutRegistroExtra.visibility = View.VISIBLE
                 btnLogin.text = "Registrarse"
                 tvRegister.text = "¿Ya tienes cuenta? Inicia sesión"
             }
         }
 
-        // Lógica del Botón Principal
         btnLogin.setOnClickListener {
-            val user = etUser.text.toString().trim()
+            val email = etUser.text.toString().trim()
             val pass = etPassword.text.toString().trim()
 
-            // Validación básica de campos comunes
-            if (user.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Por favor, completa usuario y contraseña", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            limpiarErrores(tilEmail, tilPassword, tilNombre, tilEdad)
+
+            // --- VALIDACIONES COMUNES ---
+            if (!validarEmail(email, tilEmail)) return@setOnClickListener
+            if (!validarPassword(pass, tilPassword)) return@setOnClickListener
 
             if (isLoginMode) {
-                // --- PROCESO DE INICIO DE SESIÓN ---
-                authManager.loginUser(user, pass) { exito, mensaje ->
-                    if (exito) {
-                        Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
-                        irAlMenuPrincipal()
-                    } else {
-                        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
-                    }
+                authManager.loginUser(email, pass) { exito, mensaje ->
+                    if (exito) irAlMenuPrincipal()
+                    else Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
                 }
-
             } else {
-                // --- PROCESO DE REGISTRO ---
+                // --- VALIDACIONES DE REGISTRO ---
+                val nombre = etNombre.text.toString().trim()
                 val edad = etEdad.text.toString().trim()
 
-                // Validación de campos extra de registro
+                if (nombre.isEmpty()) {
+                    tilNombre.error = "El nombre es obligatorio"
+                    return@setOnClickListener
+                }
                 if (edad.isEmpty()) {
-                    Toast.makeText(this, "La edad es obligatoria", Toast.LENGTH_SHORT).show()
+                    tilEdad.error = "La edad es obligatoria"
+                    return@setOnClickListener
+                }
+                if (!cbTerms.isChecked) {
+                    Toast.makeText(this, "Debes aceptar los términos legales", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                // Validación de RadioButtons (Evita que la app truene si no hay nada marcado)
-                val seleccionadoManoId = rgMano.checkedRadioButtonId
-                val seleccionadoNivelId = rgNivel.checkedRadioButtonId
+                val mano = if (findViewById<RadioButton>(rgMano.checkedRadioButtonId).text == "Derecha") "Derecha" else "Izquierda"
 
-                if (seleccionadoManoId == -1 || seleccionadoNivelId == -1) {
-                    Toast.makeText(this, "Selecciona mano y nivel de experiencia", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                val mano = findViewById<RadioButton>(seleccionadoManoId).text.toString()
-                val nivel = findViewById<RadioButton>(seleccionadoNivelId).text.toString()
-
-                // Preparar datos para Firestore
                 val datosUsuario = hashMapOf(
-                    "nombre" to user.split("@")[0],
+                    "nombre" to nombre,
+                    "email" to email,
                     "edad" to edad,
                     "mano" to mano,
-                    "nivel" to nivel,
-                    "rol" to if (user.endsWith("@lexihand.dev")) "admin" else "user"
+                    "aceptacion_legal" to true
                 )
 
-                // Llamada al registro en la nube
-                authManager.registerUserCloud(user, pass, datosUsuario) { exito, mensaje ->
-                    if (exito) {
-                        Toast.makeText(this, "¡Bienvenido a LexiHand!", Toast.LENGTH_SHORT).show()
-                        irAlMenuPrincipal()
-                    } else {
-                        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
-                    }
+                authManager.registerUserCloud(email, pass, datosUsuario) { exito, mensaje ->
+                    if (exito) irAlMenuPrincipal()
+                    else Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
+    // FUNCIONES DE VALIDACIÓN
+    private fun validarEmail(email: String, container: TextInputLayout): Boolean {
+        return when {
+            email.isEmpty() -> {
+                container.error = "Escribe tu correo"
+                false
+            }
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                container.error = "Formato de correo inválido"
+                false
+            }
+            else -> true
+        }
+    }
+
+    private fun validarPassword(pass: String, container: TextInputLayout): Boolean {
+        return when {
+            pass.isEmpty() -> {
+                container.error = "Escribe tu contraseña"
+                false
+            }
+            pass.length < 6 -> {
+                container.error = "Mínimo 6 caracteres"
+                false
+            }
+            else -> true
+        }
+    }
+
+    private fun limpiarErrores(vararg containers: TextInputLayout) {
+        for (c in containers) c.error = null
+    }
+
     private fun irAlMenuPrincipal() {
         val intent = Intent(this, MainActivity::class.java)
-        // Bandera de seguridad: limpia el historial de actividades para que no se pueda volver al login con "atrás"
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()

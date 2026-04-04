@@ -120,8 +120,13 @@ class AuthManager(private val context: Context) {
         sharedPrefs.edit().putBoolean("SYNC_PENDING", pendiente).apply()
     }
 
-    fun cerrarSesion() {
+    fun cerrarSesionLocal() {
+        // 1. Cerramos sesión en Firebase
         auth.signOut()
-        sharedPrefs.edit().clear().apply()
+
+        // 2. Limpiamos las preferencias locales (SharedPreferences)
+        val editor = sharedPrefs.edit()
+        editor.clear() // Borra todo (email, pass, nombre, rol y el flag esta_logueado)
+        editor.apply()
     }
 }

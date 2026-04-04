@@ -52,14 +52,15 @@
                         android:id="@+id/txtUserName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Juan Pérez García"
+                        android:text="Cargando nombre..."
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:layout_marginTop="12dp"/>
                     <TextView
+                        android:id="@+id/txtUserLevel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nivel: 🥇 Avanzado"
+                        android:text="Nivel: --"
                         android:textColor="#4CAF50"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -75,35 +76,46 @@
                     android:orientation="vertical"
                     android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="📊 Estadísticas" android:textStyle="bold" android:textSize="16sp"/>
+                        android:text="ℹ️ Información del Guante" android:textStyle="bold" android:textSize="16sp"/>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔥 Racha: 15 días"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🎯 Precisión: 92%"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✅ Gestos Dominados: 28/31"/>
+                    <TextView android:id="@+id/txtUserAge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Edad: --"/>
+                    <TextView android:id="@+id/txtUserHand" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mano: --" android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp">
+                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="🔗 Conexión del Guante" android:textStyle="bold"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Estado: 🟢 Vinculado" android:layout_marginTop="8dp"/>
-                    <Button
-                        android:id="@+id/btnRevinculate"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="RE-VINCULAR"/>
+                        android:text="📊 Estadísticas de Uso" android:textStyle="bold" android:textSize="16sp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔥 Racha: 0 días"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🎯 Precisión: --%"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <Button
+                android:id="@+id/btnRevinculate"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="RE-VINCULAR GUANTE"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnLogout"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="CERRAR SESIÓN"
+                android:textColor="#D32F2F"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
