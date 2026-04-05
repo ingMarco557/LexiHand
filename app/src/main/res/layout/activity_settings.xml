@@ -1,67 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="#FFFFFF"
-    android:id="@+id/cardSettings"
-    >
+    android:background="#F8FAFC">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ajustes de Sensibilidad"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#212121"
-        android:layout_marginBottom="30dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sensibilidad de Sensores (Umbral)"
-        android:textStyle="bold"/>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/sliderSensitivity"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:valueFrom="0.0"
-        android:valueTo="1.0"
-        android:value="0.5"
-        app:labelBehavior="withinBounds" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Aumenta si los dedos se mueven solos en la app. Disminuye si te cuesta que la IA detecte el movimiento."
-        android:textSize="12sp"
-        android:textColor="#757575"
-        android:layout_marginBottom="24dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Configuración LexiHand"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:layout_marginBottom="25dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Suavizado de Datos (Filtro)"
-        android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Preferencias de Usuario" android:textStyle="bold" android:textColor="#6200EE" />
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/sliderFilter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:valueFrom="1"
-        android:valueTo="10"
-        android:stepSize="1"
-        android:value="5" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Idioma de traducción" android:layout_marginTop="10dp"/>
+        <Spinner
+            android:id="@+id/spinnerLanguage"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/input_field_background"
+            android:layout_marginTop="5dp"/>
 
-    <Button
-        android:id="@+id/btnSaveSettings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Guardar Configuración"
-        android:layout_marginTop="32dp"
-        app:cornerRadius="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Tamaño de fuente de traducción" android:layout_marginTop="15dp"/>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderFontSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="14"
+            android:valueTo="40"
+            android:value="20" />
 
-</LinearLayout>
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchAutocorrect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Modo Autocorrección (IA)"
+            android:checked="true"
+            android:layout_marginTop="10dp"/>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="20dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Algoritmo y Seguridad" android:textStyle="bold" android:textColor="#6200EE" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Umbral de Seguridad (%)" android:layout_marginTop="10dp"/>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderConfidence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="50"
+            android:valueTo="99"
+            android:value="80" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Mínima certeza para mostrar una palabra." android:textSize="11sp" android:textColor="#757575"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Retraso (Delay) entre palabras" android:layout_marginTop="15dp"/>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderDelay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0.5"
+            android:valueTo="4.0"
+            android:stepSize="0.5"
+            android:value="1.5" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#F0F0F0"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp">
+            <TextView android:id="@+id/tvTestDelay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Presiona el botón para probar delay"
+                android:textColor="#808080"/>
+            <Button
+                android:id="@+id/btnTestDelay"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROBAR VELOCIDAD"/>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="20dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Hardware y Sensores" android:textStyle="bold" android:textColor="#6200EE" />
+
+        <Button
+            android:id="@+id/btnRecalibrate"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="RE-CALIBRAR SENSORES"
+            android:layout_marginTop="10dp"/>
+
+        <Button
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="GUARDAR CAMBIOS"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="#6200EE"
+            android:textColor="#FFFFFF"/>
+
+    </LinearLayout>
+</ScrollView>
