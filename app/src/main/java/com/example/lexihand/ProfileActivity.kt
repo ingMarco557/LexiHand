@@ -1,5 +1,6 @@
 package com.example.lexihand
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -15,23 +16,37 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+    // Referencias de UI
+    private lateinit var txtUserName: TextView
+    private lateinit var txtUserLevel: TextView
+    private lateinit var txtUserAge: TextView
+    private lateinit var txtUserHand: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        // Inicializar Firebase
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        setupToolbar()
-        loadUserProfile()
+        // Inicializar vistas
+        txtUserName = findViewById(R.id.txtUserName)
+        txtUserLevel = findViewById(R.id.txtUserLevel)
+        txtUserAge = findViewById(R.id.txtUserAge)
+        txtUserHand = findViewById(R.id.txtUserHand)
 
-        // Botón Re-vincular
+        setupToolbar()
+
+        // 1. Cargar datos desde la Caché local (Instantáneo)
+        cargarDatosDesdeCache()
+
+        // 2. Cargar datos desde Firebase (Actualización en segundo plano)
+        loadUserProfileFromFirebase()
+
         findViewById<Button>(R.id.btnRevinculate).setOnClickListener {
             reVinculateDevice()
         }
 
-        // Botón Cerrar Sesión
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
             cerrarSesion()
         }
@@ -43,42 +58,65 @@ class ProfileActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
     }
 
-    private fun loadUserProfile() {
-        val userId = auth.currentUser?.uid
+    private fun cargarDatosDesdeCache() {
+        val prefs = getSharedPreferences("UserCache", Context.MODE_PRIVATE)
 
-        if (userId != null) {
-            // Buscamos el documento en la colección "usuarios" que creamos en el Login
-            db.collection("usuarios").document(userId).get()
-                .addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        // Extraemos los datos exactos del mapa que guardamos
-                        val nombre = document.getString("nombre") ?: "Usuario"
-                        val nivel = document.getString("nivel") ?: "Principiante"
-                        val edad = document.getString("edad") ?: "--"
-                        val mano = document.getString("mano") ?: "--"
+        // Leemos los datos. Si no existen, ponemos valores por defecto
+        txtUserName.text = prefs.getString("nombre", "Usuario")
+        txtUserLevel.text = "Nivel: ${prefs.getString("nivel", "--")}"
+        txtUserAge.text = "Edad: ${prefs.getString("edad", "--")} años"
+        txtUserHand.text = "Mano: ${prefs.getString("mano", "--")}"
+    }
 
-                        // Pintamos en la UI
-                        findViewById<TextView>(R.id.txtUserName).text = nombre
-                        findViewById<TextView>(R.id.txtUserLevel).text = "Nivel: $nivel"
-                        findViewById<TextView>(R.id.txtUserAge).text = "Edad: $edad años"
-                        findViewById<TextView>(R.id.txtUserHand).text = "Mano: $mano"
-                    }
+    private fun guardarDatosEnCache(nombre: String, nivel: String, edad: String, mano: String) {
+        val prefs = getSharedPreferences("UserCache", Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("nombre", nombre)
+        editor.putString("nivel", nivel)
+        editor.putString("edad", edad)
+        editor.putString("mano", mano)
+        editor.apply() // Guarda en segundo plano
+    }
+
+    private fun loadUserProfileFromFirebase() {
+        val userId = auth.currentUser?.uid ?: return
+
+        db.collection("usuarios").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val nombre = document.getString("nombre") ?: "Usuario"
+                    val nivel = document.getString("nivel") ?: "Principiante"
+                    val edad = document.getString("edad") ?: "--"
+                    val mano = document.getString("mano") ?: "--"
+
+                    // Actualizar UI
+                    txtUserName.text = nombre
+                    txtUserLevel.text = "Nivel: $nivel"
+                    txtUserAge.text = "Edad: $edad años"
+                    txtUserHand.text = "Mano: $mano"
+
+                    // Guardar en Caché para la próxima vez
+                    guardarDatosEnCache(nombre, nivel, edad, mano)
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Error al cargar datos", Toast.LENGTH_SHORT).show()
-                }
-        }
+            }
+            .addOnFailureListener {
+                // Si falla (por falta de internet), el usuario ya está viendo los datos de la caché
+                Toast.makeText(this, "Mostrando datos locales (Sin conexión)", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun cerrarSesion() {
-        // 1. Cerrar sesión en Firebase
+        // 1. Limpiar Caché Local
+        val prefs = getSharedPreferences("UserCache", Context.MODE_PRIVATE)
+        prefs.edit().clear().apply()
+
+        // 2. Cerrar sesión en Firebase
         auth.signOut()
 
-        // 2. Limpiar preferencias si usas AuthManager manual
+        // 3. Limpiar AuthManager
         val authManager = AuthManager(this)
         authManager.cerrarSesionLocal()
 
-        // 3. Regresar al Login y borrar el historial de pantallas
         val intent = Intent(this, login::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -86,7 +124,6 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun reVinculateDevice() {
-        // Aquí puedes redirigir a una pantalla de escaneo o llamar al MainActivity
         Toast.makeText(this, "Buscando guante LexiHand...", Toast.LENGTH_SHORT).show()
     }
 }

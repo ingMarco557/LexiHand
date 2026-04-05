@@ -15,7 +15,8 @@ class AuthManager(private val context: Context) {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
-    private val sharedPrefs = context.getSharedPreferences("LexiHandLocalDB", Context.MODE_PRIVATE)
+    // Usamos "UserCache" para que coincida con lo que lee ProfileActivity
+    private val sharedPrefs = context.getSharedPreferences("UserCache", Context.MODE_PRIVATE)
 
     fun isOnline(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -27,61 +28,86 @@ class AuthManager(private val context: Context) {
     }
 
     /**
-     * REGISTRO CON VALIDACIONES ESPECÍFICAS
+     * REGISTRO: Crea el usuario en Auth y luego usa su UID para crear el perfil en Firestore
      */
     fun registerUserCloud(email: String, pass: String, datos: Map<String, Any>, onResult: (Boolean, String) -> Unit) {
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnSuccessListener { authResult ->
+                // AQUÍ OBTENEMOS EL UID AUTOMÁTICAMENTE
                 val uid = authResult.user?.uid ?: ""
 
-                db.collection("users").document(uid)
-                    .set(datos)
+                val perfilCompleto = datos.toMutableMap()
+                if (!perfilCompleto.containsKey("nivel")) {
+                    perfilCompleto["nivel"] = "Principiante"
+                }
+
+                // Guardamos en Firestore usando el UID como nombre del documento
+                db.collection("usuarios").document(uid)
+                    .set(perfilCompleto)
                     .addOnSuccessListener {
-                        guardarSesionLocal(email, pass, datos["nombre"].toString(), datos["rol"].toString())
-                        onResult(true, "Cuenta creada y sincronizada")
+                        // Guardamos en caché local para que el Perfil lo lea al instante
+                        guardarSesionLocal(
+                            email,
+                            pass,
+                            perfilCompleto["nombre"].toString(),
+                            perfilCompleto["nivel"].toString(),
+                            perfilCompleto["edad"].toString(),
+                            perfilCompleto["mano"].toString()
+                        )
+                        onResult(true, "Cuenta creada con éxito")
                     }
                     .addOnFailureListener {
-                        guardarSesionLocal(email, pass, datos["nombre"].toString(), datos["rol"].toString())
-                        marcarSincronizacionPendiente(true)
-                        onResult(true, "Registrado localmente (Error de red al subir perfil)")
+                        // Si falla Firestore, al menos tenemos los datos locales
+                        guardarSesionLocal(email, pass, datos["nombre"].toString(), "Principiante", datos["edad"].toString(), datos["mano"].toString())
+                        onResult(true, "Registrado (Datos guardados localmente)")
                     }
             }
             .addOnFailureListener { e ->
-                // --- VALIDACIÓN DE ERRORES DE REGISTRO ---
                 val errorMsg = when (e) {
-                    is FirebaseAuthUserCollisionException -> "Este correo ya está registrado. Intenta iniciar sesión."
-                    is FirebaseAuthWeakPasswordException -> "La contraseña es muy débil. Usa al menos 6 caracteres."
-                    is FirebaseAuthInvalidCredentialsException -> "El formato del correo no es válido."
-                    else -> "Error en el registro: ${e.localizedMessage}"
+                    is FirebaseAuthUserCollisionException -> "Este correo ya está registrado."
+                    is FirebaseAuthWeakPasswordException -> "La contraseña es muy corta (mínimo 6)."
+                    is FirebaseAuthInvalidCredentialsException -> "El formato del correo es inválido."
+                    else -> "Error: ${e.localizedMessage}"
                 }
                 onResult(false, errorMsg)
             }
     }
 
     /**
-     * LOGIN CON VALIDACIONES ESPECÍFICAS
+     * LOGIN: Entra y descarga los datos del UID correspondiente
      */
     fun loginUser(email: String, pass: String, onResult: (Boolean, String) -> Unit) {
         if (isOnline()) {
             auth.signInWithEmailAndPassword(email, pass)
-                .addOnSuccessListener {
-                    val rol = if (email.endsWith("@lexihand.dev")) "admin" else "user"
-                    guardarSesionLocal(email, pass, email.split("@")[0], rol)
-                    onResult(true, "Sesión iniciada (En línea)")
+                .addOnSuccessListener { authResult ->
+                    val uid = authResult.user?.uid ?: ""
+
+                    // Buscamos el documento que se llama igual que el UID
+                    db.collection("usuarios").document(uid).get()
+                        .addOnSuccessListener { doc ->
+                            if (doc.exists()) {
+                                guardarSesionLocal(
+                                    email,
+                                    pass,
+                                    doc.getString("nombre") ?: "Usuario",
+                                    doc.getString("nivel") ?: "Principiante",
+                                    doc.getString("edad") ?: "--",
+                                    doc.getString("mano") ?: "--"
+                                )
+                                onResult(true, "¡Bienvenido de nuevo!")
+                            } else {
+                                onResult(true, "Sesión iniciada (Perfil no encontrado)")
+                            }
+                        }
+                        .addOnFailureListener {
+                            onResult(true, "Sesión iniciada (Modo offline)")
+                        }
                 }
                 .addOnFailureListener { e ->
-                    // --- VALIDACIÓN DE ERRORES DE LOGIN ONLINE ---
                     when (e) {
-                        is FirebaseAuthInvalidUserException -> {
-                            onResult(false, "No existe ninguna cuenta con este correo.")
-                        }
-                        is FirebaseAuthInvalidCredentialsException -> {
-                            onResult(false, "Contraseña incorrecta.")
-                        }
-                        else -> {
-                            // Si falla por otra cosa (como red), intentamos local
-                            validarLoginLocal(email, pass, onResult)
-                        }
+                        is FirebaseAuthInvalidUserException -> onResult(false, "El usuario no existe.")
+                        is FirebaseAuthInvalidCredentialsException -> onResult(false, "Contraseña incorrecta.")
+                        else -> validarLoginLocal(email, pass, onResult)
                     }
                 }
         } else {
@@ -94,20 +120,22 @@ class AuthManager(private val context: Context) {
         val savedPass = sharedPrefs.getString("pass_local", null)
 
         if (savedUser == null) {
-            onResult(false, "No hay datos locales. Conéctate a internet para el primer inicio.")
+            onResult(false, "No hay datos locales. Conéctate a internet una vez.")
         } else if (email == savedUser && pass == savedPass) {
-            onResult(true, "Acceso concedido (Modo Offline)")
+            onResult(true, "Acceso local concedido")
         } else {
-            onResult(false, "Credenciales incorrectas (Modo Offline).")
+            onResult(false, "Credenciales incorrectas offline.")
         }
     }
 
-    private fun guardarSesionLocal(email: String, pass: String, nombre: String, rol: String) {
+    private fun guardarSesionLocal(email: String, pass: String, nombre: String, nivel: String, edad: String, mano: String) {
         val editor = sharedPrefs.edit()
         editor.putString("email_local", email)
         editor.putString("pass_local", pass)
-        editor.putString("nombre_local", nombre)
-        editor.putString("rol_local", rol)
+        editor.putString("nombre", nombre)
+        editor.putString("nivel", nivel)
+        editor.putString("edad", edad)
+        editor.putString("mano", mano)
         editor.putBoolean("esta_logueado", true)
         editor.apply()
     }
@@ -116,17 +144,8 @@ class AuthManager(private val context: Context) {
         return sharedPrefs.getBoolean("esta_logueado", false)
     }
 
-    private fun marcarSincronizacionPendiente(pendiente: Boolean) {
-        sharedPrefs.edit().putBoolean("SYNC_PENDING", pendiente).apply()
-    }
-
     fun cerrarSesionLocal() {
-        // 1. Cerramos sesión en Firebase
         auth.signOut()
-
-        // 2. Limpiamos las preferencias locales (SharedPreferences)
-        val editor = sharedPrefs.edit()
-        editor.clear() // Borra todo (email, pass, nombre, rol y el flag esta_logueado)
-        editor.apply()
+        sharedPrefs.edit().clear().apply()
     }
 }
