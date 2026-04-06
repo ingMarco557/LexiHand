@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity(), GuanteManager.GuanteListener {
         if (!adapter.isEnabled) {
             Toast.makeText(this, "Por favor, enciende el Bluetooth", Toast.LENGTH_LONG).show()
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivity(enableBtIntent)
+            //startActivity(enableBtIntent)
             return
         }
 

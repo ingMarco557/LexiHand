@@ -125,6 +125,8 @@ class Game2Activity : AppCompatActivity() {
             if (currentPosition < wordsList.size) {
                 setQuestion()
             } else {
+                // 🌟 AQUÍ REGISTRAMOS LA RACHA AL COMPLETAR EL JUEGO 🌟
+                LexiDataManager.registrarJuegoCompletado(this)
                 val intent = Intent(this, Game2ResultActivity::class.java)
                 intent.putExtra("TOTAL_QUESTIONS", wordsList.size)
                 intent.putExtra("CORRECT_ANSWERS", correctAnswersCount)

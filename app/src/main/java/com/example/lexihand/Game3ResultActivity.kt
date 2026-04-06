@@ -18,6 +18,11 @@ class Game3ResultActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_g3_score).text = "Replicaste $correct de $total"
         findViewById<TextView>(R.id.tv_g3_percentage).text = "${percentage.toInt()}%"
 
+        // 🌟 NUEVO: Obtenemos y mostramos la racha real 🌟
+        val rachaActual = LexiDataManager.obtenerRacha(this)
+        findViewById<TextView>(R.id.tv_racha_final).text = "Racha: $rachaActual 🔥"
+
+
         findViewById<Button>(R.id.btn_g3_finish).setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK

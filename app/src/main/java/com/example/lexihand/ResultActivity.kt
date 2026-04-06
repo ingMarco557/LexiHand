@@ -16,6 +16,10 @@ class ResultActivity : AppCompatActivity() {
         val tvPercentage: TextView = findViewById(R.id.tv_percentage)
         val btnFinish: Button = findViewById(R.id.btn_finish)
 
+
+        // 🌟 NUEVO: Enlazamos el texto de la racha 🌟
+        val tvRachaFinal: TextView = findViewById(R.id.tv_racha_final)
+
         // Recuperamos los datos que nos mandó el juego
         val totalQuestions = intent.getIntExtra("TOTAL_QUESTIONS", 0)
         val correctAnswers = intent.getIntExtra("CORRECT_ANSWERS", 0)
@@ -25,6 +29,10 @@ class ResultActivity : AppCompatActivity() {
 
         tvScoreText.text = "Acertaste $correctAnswers de $totalQuestions"
         tvPercentage.text = "${percentage.toInt()}%"
+
+        // 🌟 NUEVO: Obtenemos y mostramos la racha real 🌟
+        val rachaActual = LexiDataManager.obtenerRacha(this)
+        tvRachaFinal.text = "Racha: $rachaActual 🔥"
 
         // Botón para salir al menú principal (MainActivity)
         btnFinish.setOnClickListener {

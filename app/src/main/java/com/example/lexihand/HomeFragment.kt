@@ -13,7 +13,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var txtRacha: TextView
     private lateinit var txtPrecision: TextView
-    private lateinit var btnVincular: Button // Nuevo: Referencia al botón
+    private lateinit var btnVincular: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -21,41 +21,41 @@ class HomeFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // 1. Inicializar vistas de estadísticas
+        // Inicializar vistas
         txtRacha = root.findViewById(R.id.txtRachaHome)
         txtPrecision = root.findViewById(R.id.txtPrecisionHome)
-
-        // 2. Inicializar Botón de Vinculación
-        // Asegúrate de que en tu fragment_home.xml el botón tenga este ID
         btnVincular = root.findViewById(R.id.btnVincularGuante)
 
         btnVincular.setOnClickListener {
             vincularDispositivo()
         }
 
-        // Datos iniciales
-        updateStats(15, 92)
-
         return root
     }
 
-    /**
-     * Llama al método del MainActivity para iniciar el escaneo de Bluetooth
-     */
+    // Usamos onResume para que se actualice CADA VEZ que el usuario entra a esta pestaña
+    override fun onResume() {
+        super.onResume()
+        cargarEstadisticasReales()
+    }
+
+    private fun cargarEstadisticasReales() {
+        // Leemos los datos guardados en el celular
+        val rachaReal = LexiDataManager.obtenerRacha(requireContext())
+        val precisionGlobal = LexiDataManager.obtenerPrecisionGlobal(requireContext())
+
+        // Actualizamos la pantalla
+        updateStats(rachaReal, precisionGlobal)
+    }
+
     private fun vincularDispositivo() {
         val mainActivity = activity as? MainActivity
         if (mainActivity != null) {
-            // Ejecutamos la función que creamos en el MainActivity
             mainActivity.iniciarVinculacion()
-
-            // Opcional: Feedback inmediato en el fragmento
             Toast.makeText(requireContext(), "Buscando LexiHand...", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * Actualiza los indicadores visuales de progreso del usuario
-     */
     fun updateStats(racha: Int, precision: Int) {
         txtRacha.text = "$racha 🔥"
         txtPrecision.text = "$precision% 🎯"

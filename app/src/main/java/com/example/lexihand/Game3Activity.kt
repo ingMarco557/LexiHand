@@ -41,7 +41,7 @@ class Game3Activity : AppCompatActivity() {
     private var currentPosition: Int = 0
     private var correctAnswersCount: Int = 0
     private var timer: CountDownTimer? = null
-    private var isDialogShowing = false // Evita que salgan muchos popups a la vez
+    private var isDialogShowing = false
 
     // Lógica IA & BLE
     private lateinit var tflite: Interpreter
@@ -67,7 +67,7 @@ class Game3Activity : AppCompatActivity() {
         questionsList = if (gameMode == "QUICK") Game3Repository.getQuickModeQuestions() else Game3Repository.getFullModeQuestions()
 
         initTFLite()
-        checkPermissionsAndConnect() // Arranca el bluetooth al entrar
+        checkPermissionsAndConnect()
     }
 
     private fun initTFLite() {
@@ -105,20 +105,27 @@ class Game3Activity : AppCompatActivity() {
         }.start()
     }
 
-    // Se llama cada vez que la IA predice algo
+    // 🌟 AQUÍ MODIFICAMOS PARA GUARDAR EL PORCENTAJE DE LA LETRA 🌟
     private fun checkGameCondition(predictedLetter: String, confidence: Float, timeOut: Boolean = false) {
         if (isDialogShowing) return
 
-        val target = questionsList[currentPosition].letterTarget
+        val targetString = questionsList[currentPosition].letterTarget
+        val targetChar = targetString.first() // Convertimos de "A" (String) a 'A' (Char) para el manager
 
         if (timeOut) {
+            // Se le acabó el tiempo, registramos como FALLO en esa letra específica
+            LexiDataManager.registrarIntentoLetra(this, targetChar, false)
             showFeedbackDialog(false, "Qué mal, vamos por la siguiente. Confío en ti.")
             return
         }
 
-        // Si la letra es correcta y la confianza es mayor al 75% (0.75f) -> GANÓ
-        if (predictedLetter == target && confidence >= 0.75f) {
+        // Si la letra es correcta y la confianza es mayor al 75% -> GANÓ
+        if (predictedLetter == targetString && confidence >= 0.75f) {
             correctAnswersCount++
+
+            // Atinó la seña, registramos como ACIERTO en esa letra específica
+            LexiDataManager.registrarIntentoLetra(this, targetChar, true)
+
             showFeedbackDialog(true, "¡Felicidades, vamos por la siguiente!")
         }
     }
@@ -141,7 +148,11 @@ class Game3Activity : AppCompatActivity() {
         }
     }
 
+    // 🌟 AQUÍ MODIFICAMOS PARA GUARDAR LA RACHA AL FINALIZAR 🌟
     private fun finishGame() {
+        // Le decimos al Manager: "¡Hey, acaba de completar un juego, revisa la racha!"
+        LexiDataManager.registrarJuegoCompletado(this)
+
         val intent = Intent(this, Game3ResultActivity::class.java)
         intent.putExtra("TOTAL_QUESTIONS", questionsList.size)
         intent.putExtra("CORRECT_ANSWERS", correctAnswersCount)
@@ -149,7 +160,7 @@ class Game3Activity : AppCompatActivity() {
         finish()
     }
 
-    // --- BLUETOOTH & TFLITE (Tu código adaptado) ---
+    // --- BLUETOOTH & TFLITE ---
     private fun checkPermissionsAndConnect() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -189,7 +200,7 @@ class Game3Activity : AppCompatActivity() {
                 runOnUiThread {
                     tvStatus.text = "🟢 Guante Conectado"
                     tvStatus.setTextColor(Color.parseColor("#4CAF50"))
-                    setQuestion() // ¡Inicia el juego solo cuando se conecta!
+                    setQuestion()
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 bluetoothGatt = null
@@ -239,9 +250,8 @@ class Game3Activity : AppCompatActivity() {
             tvDetected.text = predicted
             tvConfidence.text = "${(confidence * 100).toInt()}%"
 
-            // Colores según confianza
             if (confidence > 0.75f) tvConfidence.setTextColor(Color.GREEN)
-            else if (confidence > 0.40f) tvConfidence.setTextColor(Color.parseColor("#FF9800")) // Naranja
+            else if (confidence > 0.40f) tvConfidence.setTextColor(Color.parseColor("#FF9800"))
             else tvConfidence.setTextColor(Color.RED)
 
             checkGameCondition(predicted, confidence)

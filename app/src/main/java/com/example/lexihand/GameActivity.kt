@@ -28,7 +28,6 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        // 1. Enlazamos la vista con el código
         tvProgress = findViewById(R.id.tv_progress)
         tvTimer = findViewById(R.id.tv_timer)
         ivSignImage = findViewById(R.id.iv_sign_image)
@@ -37,29 +36,23 @@ class GameActivity : AppCompatActivity() {
         btnOption3 = findViewById(R.id.btn_option_3)
         btnOption4 = findViewById(R.id.btn_option_4)
 
-        // 2. ¿Qué modo de juego eligió el usuario?
         val gameMode = intent.getStringExtra("GAME_MODE")
 
-        // 3. Cargamos las preguntas según el modo
         questionsList = if (gameMode == "QUICK") {
             GameRepository.getQuickModeQuestions()
         } else {
             GameRepository.getFullModeQuestions()
         }
 
-        // 4. Arrancamos la primera pregunta
         setQuestion()
     }
 
     private fun setQuestion() {
-        // Obtenemos la pregunta actual
         val question = questionsList[currentPosition]
 
-        // Actualizamos textos e imagen
         tvProgress.text = "${currentPosition + 1}/${questionsList.size}"
         ivSignImage.setImageResource(question.imageResourceId)
 
-        // Mezclamos las opciones para que la correcta cambie de botón
         val options = mutableListOf(
             question.correctAnswer,
             question.choiceOne,
@@ -68,46 +61,53 @@ class GameActivity : AppCompatActivity() {
         )
         options.shuffle()
 
-        // Asignamos las letras a los botones
         btnOption1.text = options[0]
         btnOption2.text = options[1]
         btnOption3.text = options[2]
         btnOption4.text = options[3]
 
-        // Configuramos qué pasa al hacer clic
         btnOption1.setOnClickListener { checkAnswer(btnOption1.text.toString(), question.correctAnswer) }
         btnOption2.setOnClickListener { checkAnswer(btnOption2.text.toString(), question.correctAnswer) }
         btnOption3.setOnClickListener { checkAnswer(btnOption3.text.toString(), question.correctAnswer) }
         btnOption4.setOnClickListener { checkAnswer(btnOption4.text.toString(), question.correctAnswer) }
 
-        // Iniciamos el cronómetro de 10 segundos
         startTimer()
     }
 
     private fun startTimer() {
-        timer?.cancel() // Cancelamos si había uno anterior
-
-        // 10000 milisegundos = 10 segundos. Se actualiza cada 1000 ms (1 segundo)
+        timer?.cancel()
         timer = object : CountDownTimer(10000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 tvTimer.text = "⏱️ ${millisUntilFinished / 1000}s"
             }
 
             override fun onFinish() {
-                // Si el tiempo se acaba, es como si hubiera fallado
                 tvTimer.text = "⏱️ 0s"
+
+                // Si el tiempo se acaba, el usuario falla en la letra actual
+                val targetChar = questionsList[currentPosition].correctAnswer.first()
+                LexiDataManager.registrarIntentoLetra(this@GameActivity, targetChar, false)
+
                 showFeedbackDialog(false, "¡Se acabó el tiempo!")
             }
         }.start()
     }
 
     private fun checkAnswer(selectedAnswer: String, correctAnswer: String) {
-        timer?.cancel() // Detenemos el reloj porque ya respondió
+        timer?.cancel()
+
+        val targetChar = correctAnswer.first() // De String "A" pasa a Char 'A'
 
         if (selectedAnswer == correctAnswer) {
             correctAnswersCount++
+            // ✅ Guardamos acierto en la precisión de la letra
+            LexiDataManager.registrarIntentoLetra(this, targetChar, true)
+
             showFeedbackDialog(true, "¡Excelente, vamos por la siguiente!")
         } else {
+            // ❌ Guardamos fallo en la precisión de la letra
+            LexiDataManager.registrarIntentoLetra(this, targetChar, false)
+
             showFeedbackDialog(false, "Qué vergüenza, espero que en esta sí puedas. Era la letra: $correctAnswer")
         }
     }
@@ -116,21 +116,23 @@ class GameActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(if (isCorrect) "¡Correcto! ✅" else "¡Incorrecto! ❌")
         builder.setMessage(message)
-        builder.setCancelable(false) // Para que no lo cierre tocando afuera
+        builder.setCancelable(false)
 
         builder.setPositiveButton("Continuar") { dialog, _ ->
             dialog.dismiss()
-            currentPosition++ // Pasamos a la siguiente pregunta
+            currentPosition++
 
             if (currentPosition < questionsList.size) {
-                setQuestion() // Cargamos la siguiente
+                setQuestion()
             } else {
-                // Se acabaron las preguntas, vamos a los resultados
+                // 🌟 AQUÍ REGISTRAMOS LA RACHA AL COMPLETAR EL JUEGO 🌟
+                LexiDataManager.registrarJuegoCompletado(this)
+
                 val intent = Intent(this, ResultActivity::class.java)
                 intent.putExtra("TOTAL_QUESTIONS", questionsList.size)
                 intent.putExtra("CORRECT_ANSWERS", correctAnswersCount)
                 startActivity(intent)
-                finish() // Cerramos el juego
+                finish()
             }
         }
         builder.show()
@@ -138,6 +140,6 @@ class GameActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        timer?.cancel() // Aseguramos que el reloj se detenga si sale de la app
+        timer?.cancel()
     }
 }

@@ -50,6 +50,6 @@ object Game2Repository {
     fun getQuickModeWords(): List<WordQuestionData> {
         val allWords = getFullModeWords().shuffled()
         // Si tienes más de 10, cambias el 2 por un 10
-        return allWords.take(Math.min(2, allWords.size))
+        return allWords.take(Math.min(10, allWords.size))
     }
 }

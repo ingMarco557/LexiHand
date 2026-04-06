@@ -16,6 +16,19 @@
         android:layout_marginBottom="16dp" />
 
     <TextView
+        android:id="@+id/tv_racha_final"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Racha: 0 🔥"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FF9800"
+        android:layout_marginTop="16dp"/>
+
+
+
+
+    <TextView
         android:id="@+id/tv_score_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

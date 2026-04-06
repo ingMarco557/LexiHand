@@ -6,6 +6,16 @@
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:text="Resultados de Réplica" android:textSize="30sp" android:textStyle="bold" android:layout_marginBottom="16dp" />
 
+    <TextView
+        android:id="@+id/tv_racha_final"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Racha: 0 🔥"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FF9800"
+        android:layout_marginTop="16dp"/>
+
     <TextView android:id="@+id/tv_g3_score" android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:text="Replicaste 8 de 10" android:textSize="20sp" android:layout_marginBottom="8dp" />
 
