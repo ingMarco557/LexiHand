@@ -11,21 +11,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 
 class DataCollectionActivity : AppCompatActivity() {
 
-    // --- VARIABLES DE ESTADO Y DATOS ---
+    // --- VARIABLES DE DATOS ---
     private var isRecording = false
     private var samplesCollected = 0
     private val maxSamples = 100
     private val muestrasLista = mutableListOf<String>()
+    private val userId = "usuario_prueba_1"
 
     // --- FIREBASE ---
-    // Usamos la URL exacta de tu imagen para evitar errores de conexión
     private val database = FirebaseDatabase.getInstance("https://lexihand-bfe1a-default-rtdb.firebaseio.com/").reference
 
-    // --- UI COMPONENTS ---
+    // --- UI ---
     private lateinit var spinnerGestures: Spinner
     private lateinit var layoutCustomGesture: TextInputLayout
     private lateinit var etCustomGesture: EditText
@@ -33,31 +33,30 @@ class DataCollectionActivity : AppCompatActivity() {
     private lateinit var txtSamples: TextView
     private lateinit var btnStartStop: Button
     private lateinit var txtRealTimeData: TextView
+    private lateinit var txtGestosNube: TextView
+    private lateinit var btnDownloadModel: Button
+    private lateinit var btnClear: Button
 
-    // --- RECEIVER DEL BLUETOOTH ---
+    // --- RECEIVER (Escucha al Service del Bluetooth) ---
     private val dataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "GUANTE_RAW_DATA") {
-                // Recibimos el formato "S1:0.54,S2:0.12,S3:0.88,S4:0.11,S5:0.92"
                 val rawData = intent.getStringExtra("data") ?: ""
 
-                // 1. Mostrar en la pantalla en tiempo real
+                // Mostrar en pantalla (S1:0.5, S2:0.1...)
                 txtRealTimeData.text = rawData.replace(",", "\n")
 
-                // 2. Si estamos grabando, guardar en la lista
                 if (isRecording && samplesCollected < maxSamples) {
-                    // Limpiamos "S1:", "S2:", etc. para dejar solo "0.54,0.12..."
+                    // Limpiar el texto para dejar solo los números (0.5, 0.1...)
                     val soloNumeros = rawData.replace(Regex("S\\d:"), "")
                     muestrasLista.add(soloNumeros)
 
                     samplesCollected++
-                    progressBar.progress = samplesCollected
-                    txtSamples.text = "Muestras: $samplesCollected / $maxSamples"
+                    actualizarUI()
 
-                    // Si llegamos a 100, nos detenemos automáticamente
                     if (samplesCollected >= maxSamples) {
                         stopRecording()
-                        Toast.makeText(this@DataCollectionActivity, "¡Recolección completada!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@DataCollectionActivity, "¡Muestras capturadas!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -68,135 +67,152 @@ class DataCollectionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_collection)
 
-        // Vincular Vistas
+        vincularVistas()
+        configurarSpinner()
+        escucharNube()
+
+        // BOTÓN: GRABAR / DETENER
+        btnStartStop.setOnClickListener {
+            if (!isRecording) startRecording() else stopRecording()
+        }
+
+        // BOTÓN: SUBIR A FIREBASE
+        findViewById<Button>(R.id.btnExport).setOnClickListener {
+            subirAFirebase()
+        }
+
+        // BOTÓN: LIMPIAR MANUALMENTE
+        btnClear.setOnClickListener {
+            limpiarMemoriaLocal()
+            Toast.makeText(this, "Caché de muestras borrada", Toast.LENGTH_SHORT).show()
+        }
+
+        // BOTÓN: DESCARGAR (Simulacro)
+        btnDownloadModel.setOnClickListener {
+            Toast.makeText(this, "El modelo se genera en tu PC (trainer.py)", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun vincularVistas() {
         spinnerGestures = findViewById(R.id.spinnerGestures)
         layoutCustomGesture = findViewById(R.id.layoutCustomGesture)
         etCustomGesture = findViewById(R.id.etCustomGesture)
         progressBar = findViewById(R.id.progressSamples)
         txtSamples = findViewById(R.id.txtSampleCount)
         btnStartStop = findViewById(R.id.btnStartStop)
-        txtRealTimeData = findViewById(R.id.txtRealTimeData) // Nueva vista vinculada
-
-        setupToolbar()
-        setupGestureSelector()
-
-        // LISTENERS DE BOTONES
-        btnStartStop.setOnClickListener {
-            if (!isRecording) startRecording() else stopRecording()
-        }
-
-        findViewById<Button>(R.id.btnExport).setOnClickListener {
-            exportData()
-        }
-
-        findViewById<Button>(R.id.btnValidate).setOnClickListener {
-            validateData()
-        }
-
-        findViewById<Button>(R.id.btnClear).setOnClickListener {
-            clearData()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Empezamos a escuchar al guante
-        val filter = IntentFilter("GUANTE_RAW_DATA")
-        ContextCompat.registerReceiver(this, dataReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // Dejamos de escuchar si salimos de la pantalla para ahorrar batería
-        unregisterReceiver(dataReceiver)
-    }
-
-    private fun setupToolbar() {
-        findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbarCollection).setNavigationOnClickListener {
-            finish()
-        }
-    }
-
-    private fun setupGestureSelector() {
-        val gestures = arrayOf("A", "B", "Hola", "Adiós", "Gracias", "Personalizar...")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, gestures)
-        spinnerGestures.adapter = adapter
-
-        spinnerGestures.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                if (gestures[position] == "Personalizar...") {
-                    layoutCustomGesture.visibility = View.VISIBLE
-                    etCustomGesture.requestFocus()
-                } else {
-                    layoutCustomGesture.visibility = View.GONE
-                    etCustomGesture.text?.clear()
-                }
-            }
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-        }
+        txtRealTimeData = findViewById(R.id.txtRealTimeData)
+        txtGestosNube = findViewById(R.id.txtGestosNube)
+        btnDownloadModel = findViewById(R.id.btnDownloadModel)
+        btnClear = findViewById(R.id.btnClear)
     }
 
     private fun startRecording() {
+        limpiarMemoriaLocal() // Empezamos desde cero
         isRecording = true
         btnStartStop.text = "Detener"
         btnStartStop.backgroundTintList = getColorStateList(android.R.color.black)
-        Toast.makeText(this, "Capturando datos de: ${getTargetName()}", Toast.LENGTH_SHORT).show()
     }
 
     private fun stopRecording() {
         isRecording = false
-        btnStartStop.text = "Comenzar"
+        btnStartStop.text = "Grabar"
         btnStartStop.backgroundTintList = getColorStateList(android.R.color.holo_green_dark)
     }
 
-    private fun getTargetName(): String {
-        return if (spinnerGestures.selectedItem == "Personalizar...") {
-            etCustomGesture.text.toString().ifEmpty { "Personalizado" }
-        } else {
-            spinnerGestures.selectedItem.toString()
-        }
+    private fun limpiarMemoriaLocal() {
+        samplesCollected = 0
+        muestrasLista.clear()
+        actualizarUI()
     }
 
-    private fun exportData() {
-        if (muestrasLista.isEmpty()) {
-            Toast.makeText(this, "No hay muestras para subir", Toast.LENGTH_SHORT).show()
+    private fun actualizarUI() {
+        progressBar.progress = samplesCollected
+        txtSamples.text = "Muestras: $samplesCollected / $maxSamples"
+    }
+
+    private fun subirAFirebase() {
+        if (muestrasLista.size < maxSamples) {
+            Toast.makeText(this, "Captura al menos $maxSamples muestras primero", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val gestureName = getTargetName()
-        val userId = "usuario_prueba_1" // Esto simula tu usuario actual
+        val nombreGesto = obtenerNombreGesto()
+        val ref = database.child("Proyectos").child(userId).child("DatosRecoleccion").child(nombreGesto)
 
-        Toast.makeText(this, "Subiendo datos de ${gestureName} a Firebase...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Subiendo $nombreGesto...", Toast.LENGTH_SHORT).show()
 
-        // Ruta: Proyectos -> usuario_prueba_1 -> DatosRecoleccion -> Letra_A
-        val dataRef = database.child("Proyectos").child(userId).child("DatosRecoleccion").child(gestureName)
-
-        // Subimos toda la lista recolectada a Firebase
-        dataRef.setValue(muestrasLista).addOnCompleteListener { task ->
+        ref.setValue(muestrasLista).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                // Si subió bien, avisamos que queremos entrenar
+                // Notificar al script de Python
                 database.child("Proyectos").child(userId).child("EstadoEntrenamiento").setValue("SOLICITADO")
-                Toast.makeText(this, "¡Datos subidos con éxito!", Toast.LENGTH_LONG).show()
+
+                Toast.makeText(this, "¡Subida exitosa! Memoria local limpia.", Toast.LENGTH_SHORT).show()
+
+                // AUTO-LIMPIEZA: Una vez subido, borramos para el siguiente gesto
+                limpiarMemoriaLocal()
             } else {
                 Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun validateData() {
-        if (muestrasLista.size == maxSamples) {
-            Toast.makeText(this, "Datos válidos y completos (${maxSamples} muestras)", Toast.LENGTH_SHORT).show()
+    private fun obtenerNombreGesto(): String {
+        val seleccionado = spinnerGestures.selectedItem.toString()
+        return if (seleccionado == "Personalizar...") {
+            etCustomGesture.text.toString().trim().ifEmpty { "GestoX" }
         } else {
-            Toast.makeText(this, "Datos incompletos. Tienes ${muestrasLista.size} muestras.", Toast.LENGTH_SHORT).show()
+            seleccionado
         }
     }
 
-    private fun clearData() {
-        samplesCollected = 0
-        muestrasLista.clear() // Vaciamos la lista
-        progressBar.progress = 0
-        txtSamples.text = "Muestras: 0 / $maxSamples"
-        txtRealTimeData.text = "Esperando datos..."
-        Toast.makeText(this, "Memoria de sesión limpia", Toast.LENGTH_SHORT).show()
+    private fun escucharNube() {
+        // 1. Escuchar los gestos que ya existen
+        database.child("Proyectos").child(userId).child("DatosRecoleccion")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val nombres = snapshot.children.mapNotNull { it.key }
+                    txtGestosNube.text = if (nombres.isEmpty()) "Sin datos" else "En la nube: " + nombres.joinToString(" • ")
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
+
+        // 2. Escuchar el estado de la IA (Para saber si ya terminó Python)
+        database.child("Proyectos").child(userId).child("EstadoEntrenamiento")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val estado = snapshot.getValue(String::class.java)
+                    if (estado == "SOLICITADO") {
+                        btnDownloadModel.text = "IA Entrenando... Espere"
+                        btnDownloadModel.isEnabled = false
+                    } else if (estado == "LISTO") {
+                        btnDownloadModel.text = "¡Modelo Listo! Descargar"
+                        btnDownloadModel.isEnabled = true
+                        btnDownloadModel.backgroundTintList = getColorStateList(android.R.color.holo_orange_light)
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    // --- CICLO DE VIDA (Bluetooth) ---
+    override fun onResume() {
+        super.onResume()
+        ContextCompat.registerReceiver(this, dataReceiver, IntentFilter("GUANTE_RAW_DATA"), ContextCompat.RECEIVER_EXPORTED)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(dataReceiver)
+    }
+
+    private fun configurarSpinner() {
+        val opciones = arrayOf("Reposo", "A", "B", "Hola", "Gracias", "Personalizar...")
+        spinnerGestures.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, opciones)
+        spinnerGestures.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
+                layoutCustomGesture.visibility = if (opciones[pos] == "Personalizar...") View.VISIBLE else View.GONE
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
     }
 }
