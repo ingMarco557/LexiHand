@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 
 class JuegosFragment : Fragment() {
@@ -23,8 +24,9 @@ class JuegosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // --- CONTROLES JUEGO 1: Adivinar la Seña ---
-        val btnGameOneHeader: Button = view.findViewById(R.id.btn_game_one_header)
+        // --- CONTROLES JUEGO 1 ---
+        // ⬇️ CAMBIADO DE Button A TextView
+        val btnGameOneHeader: TextView = view.findViewById(R.id.btn_game_one_header)
         val layoutSubmenuGameOne: LinearLayout = view.findViewById(R.id.layout_submenu_game_one)
         val btnGameOneQuick: Button = view.findViewById(R.id.btn_game_one_quick)
         val btnGameOneFull: Button = view.findViewById(R.id.btn_game_one_full)
@@ -36,9 +38,9 @@ class JuegosFragment : Fragment() {
         btnGameOneFull.setOnClickListener { startGame1("FULL") }
 
 
-        // --- CONTROLES JUEGO 2: Descifrar la Palabra ---
-        // (Asegúrate de que los IDs coincidan con tu XML)
-        val btnGameTwoHeader: Button = view.findViewById(R.id.btn_game_two_header)
+        // --- CONTROLES JUEGO 2 ---
+        // ⬇️ CAMBIADO DE Button A TextView
+        val btnGameTwoHeader: TextView = view.findViewById(R.id.btn_game_two_header)
         val layoutSubmenuGameTwo: LinearLayout = view.findViewById(R.id.layout_submenu_game_two)
         val btnGameTwoQuick: Button = view.findViewById(R.id.btn_game_two_quick)
         val btnGameTwoFull: Button = view.findViewById(R.id.btn_game_two_full)
@@ -50,8 +52,9 @@ class JuegosFragment : Fragment() {
         btnGameTwoFull.setOnClickListener { startGame2("FULL") }
 
 
-        // --- CONTROLES JUEGO 3: Réplica la Imagen ---
-        val btnGameThreeHeader: Button = view.findViewById(R.id.btn_game_three_header)
+        // --- CONTROLES JUEGO 3 ---
+        // ⬇️ CAMBIADO DE Button A TextView
+        val btnGameThreeHeader: TextView = view.findViewById(R.id.btn_game_three_header)
         val layoutSubmenuGameThree: LinearLayout = view.findViewById(R.id.layout_submenu_game_three)
         val btnGameThreeQuick: Button = view.findViewById(R.id.btn_game_three_quick)
         val btnGameThreeFull: Button = view.findViewById(R.id.btn_game_three_full)

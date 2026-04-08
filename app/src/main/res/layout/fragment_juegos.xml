@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2E2E3E"
-    android:padding="24dp">
+    android:background="#1A1D21"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="32dp"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="24dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -17,129 +21,256 @@
             android:textSize="32sp"
             android:textColor="@android:color/white"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="32dp"
-            android:layout_marginTop="16dp"/>
+            android:fontFamily="sans-serif-condensed-light"
+            android:gravity="start"
+            android:layout_marginBottom="32dp"/>
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#4A4A6A"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            app:strokeWidth="0dp">
 
-            <Button
-                android:id="@+id/btn_game_one_header"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="Juego 1: Adivinar"
-                android:textSize="20sp"
-                android:backgroundTint="#7C4DFF"/>
+                android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:id="@+id/layout_submenu_game_one"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginTop="8dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:src="@drawable/bg_arcade_game1"
+                    android:scaleType="centerCrop" />
 
-                <Button
-                    android:id="@+id/btn_game_one_quick"
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/arcade_card_gradient"/>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Juego Rápido"
-                    android:backgroundTint="#00B0FF" />
+                    android:orientation="vertical"
+                    android:layout_gravity="bottom"
+                    android:padding="20dp">
 
-                <Button
-                    android:id="@+id/btn_game_one_full"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Juego Completo"
-                    android:backgroundTint="#00B0FF" />
-            </LinearLayout>
-        </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SEÑAS TFLITE"
+                        android:textColor="#BC9DFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1"/>
 
-        <LinearLayout
+                    <TextView
+                        android:id="@+id/btn_game_one_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Juego 1: Adivinar"
+                        android:textColor="@android:color/white"
+                        android:textSize="22sp"
+                        android:minHeight="48dp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp"
+                        android:clickable="true"
+                        android:focusable="true"/>
+
+                    <LinearLayout
+                        android:id="@+id/layout_submenu_game_one"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        android:layout_marginTop="16dp"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_game_one_quick"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Rápido"
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="#807C4DFF" /> <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_game_one_full"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:text="Completo"
+                        app:cornerRadius="8dp"
+                        app:backgroundTint="#807C4DFF" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#4A4A6A"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            app:strokeWidth="0dp">
 
-            <Button
-                android:id="@+id/btn_game_two_header"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:backgroundTint="#FF4081"
-                android:text="Juego 2: Descifra la Palabra"
-                android:textSize="20sp" />
+                android:layout_height="wrap_content">
 
-            <LinearLayout
-            android:id="@+id/layout_submenu_game_two"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:layout_marginTop="8dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:src="@drawable/bg_arcade_game2"
+                    android:scaleType="centerCrop" />
 
-            <Button
-                android:id="@+id/btn_game_two_quick"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Juego Rápido"
-                android:backgroundTint="#FF80AB" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/arcade_card_gradient"/>
 
-            <Button
-                android:id="@+id/btn_game_two_full"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Juego Completo"
-                android:backgroundTint="#FF80AB" />
-        </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#4A4A6A"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
-
-            <Button
-                android:id="@+id/btn_game_three_header"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="Juego 3: Réplica la Imagen"
-                android:textSize="20sp"
-                android:backgroundTint="#00BFA5"/>
-
-            <LinearLayout
-                android:id="@+id/layout_submenu_game_three"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginTop="8dp">
-
-                <Button
-                    android:id="@+id/btn_game_three_quick"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Juego Rápido"
-                    android:backgroundTint="#1DE9B6" />
+                    android:orientation="vertical"
+                    android:layout_gravity="bottom"
+                    android:padding="20dp">
 
-                <Button
-                    android:id="@+id/btn_game_three_full"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VOCABULARIO"
+                        android:textColor="#FF99CC"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1"/>
+
+                    <TextView
+                        android:id="@+id/btn_game_two_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Juego 2: Descifra"
+                        android:textColor="@android:color/white"
+                        android:textSize="22sp"
+                        android:minHeight="48dp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp"
+                        android:clickable="true"
+                        android:focusable="true"/>
+
+                    <LinearLayout
+                        android:id="@+id/layout_submenu_game_two"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        android:layout_marginTop="16dp"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_game_two_quick"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Rápido"
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="#80FF4081" /> <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_game_two_full"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:text="Completo"
+                        app:cornerRadius="8dp"
+                        app:backgroundTint="#80FF4081" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            app:strokeWidth="0dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:src="@drawable/bg_arcade_game3"
+                    android:scaleType="centerCrop" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/arcade_card_gradient"/>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Juego Completo"
-                    android:backgroundTint="#1DE9B6" />
-            </LinearLayout>
-        </LinearLayout>
+                    android:orientation="vertical"
+                    android:layout_gravity="bottom"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CÁMARA IA"
+                        android:textColor="#A0FFF0"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1"/>
+
+                    <TextView
+                        android:id="@+id/btn_game_three_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Juego 3: Réplica"
+                        android:textColor="@android:color/white"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp"
+                        android:clickable="true"
+                        android:focusable="true"/>
+
+                    <LinearLayout
+                        android:id="@+id/layout_submenu_game_three"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        android:layout_marginTop="16dp"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_game_three_quick"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Rápido"
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="#8000BFA5" /> <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_game_three_full"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:text="Completo"
+                        app:cornerRadius="8dp"
+                        app:backgroundTint="#8000BFA5" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

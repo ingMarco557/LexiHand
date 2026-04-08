@@ -35,7 +35,7 @@ class ProfileActivity : AppCompatActivity() {
         txtUserAge = findViewById(R.id.txtUserAge)
         txtUserHand = findViewById(R.id.txtUserHand)
 
-        setupToolbar()
+        // setupToolbar()
 
         // 1. Cargar datos desde la Caché local (Instantáneo)
         cargarDatosDesdeCache()
@@ -52,11 +52,11 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupToolbar() {
+   /* private fun setupToolbar() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbarProfile)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
-    }
+    }*/
 
     private fun cargarDatosDesdeCache() {
         val prefs = getSharedPreferences("UserCache", Context.MODE_PRIVATE)
