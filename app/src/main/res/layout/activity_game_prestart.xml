@@ -1,45 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@android:color/white">
+    android:background="@drawable/bg_result_gradient">
+
+    <ImageView
+        android:id="@+id/iv_icon_game1"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="60dp"
+        android:src="@android:drawable/ic_menu_recent_history"
+        app:tint="#D1C4E9"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
         android:id="@+id/tv_prestart_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="¡Prepárate!"
-        android:textSize="32sp"
+        android:textSize="36sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="16dp" />
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/iv_icon_game1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_prestart_instructions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Instrucciones: Se mostrará una imagen y tendrás 10 segundos para adivinar la letra correcta. ¡No pierdas tiempo!"
-        android:textSize="18sp"
-        android:textColor="#555555"
-        android:gravity="center"
-        android:layout_marginBottom="48dp" />
-
-    <Button
-        android:id="@+id/btn_prestart_start"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="COMENZAR"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="#4CAF50" /> <Button
-    android:id="@+id/btn_prestart_exit"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Salir"
-    android:backgroundTint="@android:color/darker_gray" />
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="40dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#40FFFFFF"
+        app:cardBackgroundColor="#20FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/tv_prestart_title">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Misión"
+                android:textColor="#E040FB"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/tv_prestart_instructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Se mostrará una imagen y tendrás 10 segundos para adivinar la letra correcta.\n\n¡No pierdas tiempo!"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textAlignment="center"
+                android:lineSpacingExtra="4dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/btn_prestart_start"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:text="COMENZAR"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#311B92"
+            android:backgroundTint="#FFFFFF"
+            app:cornerRadius="32dp"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/btn_prestart_exit"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="Salir"
+            android:textColor="#BDBDBD"
+            android:textSize="16sp"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
