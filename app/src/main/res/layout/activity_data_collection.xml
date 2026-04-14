@@ -4,19 +4,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F7FA">
-
-    <com.google.android.material.appbar.AppBarLayout
+    android:background="#F5F3FF"> <com.google.android.material.appbar.AppBarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:elevation="0dp">
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarCollection"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarCollection"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/white"
-            app:title="Recolección de Datos (ML)"
-            app:navigationIcon="@drawable/ic_back" />
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="?attr/actionBarSize"
+        android:background="#6200EE" app:titleTextColor="#FFFFFF"
+        app:title="Recolección ML"
+        app:navigationIconTint="#FFFFFF"
+        app:navigationIcon="@drawable/ic_back" />
+</com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -29,40 +29,60 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gesto a Entrenar:"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
-
-            <Spinner
-                android:id="@+id/spinnerGestures"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@android:drawable/btn_dropdown"
-                android:layout_marginBottom="12dp"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutCustomGesture"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nombre del gesto personalizado"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCustomGesture"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapCharacters" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Configuración del Gesto"
+                        android:textColor="#5E35B1"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerGestures"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:layout_marginBottom="8dp"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutCustomGesture"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nombre personalizado"
+                        android:visibility="gone"
+                        app:boxStrokeColor="#6200EE"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCustomGesture"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:id="@+id/txtSampleCount"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Muestras: 0 / 100"
+                android:textAlignment="center"
+                android:textColor="#311B92"
+                android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -72,14 +92,16 @@
                 android:progress="0"
                 app:trackThickness="12dp"
                 app:trackCornerRadius="6dp"
-                android:layout_marginBottom="24dp"/>
+                app:indicatorColor="#6200EE"
+                app:trackColor="#E1D5F9"
+                android:layout_marginBottom="16dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1A1A1A"
-                app:cardCornerRadius="12dp"
-                android:layout_marginBottom="16dp">
+                app:cardBackgroundColor="#1A1225"
+                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="24dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -88,8 +110,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Monitor del Guante:"
-                        android:textColor="#00FF00"
+                        android:text="Monitor del Guante en Vivo:"
+                        android:textColor="#B388FF"
+                        android:textSize="12sp"
                         android:fontFamily="monospace"
                         android:textStyle="bold"/>
                     <TextView
@@ -97,7 +120,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Esperando conexión..."
-                        android:textColor="#00FF00"
+                        android:textColor="#FFFFFF"
                         android:fontFamily="monospace"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
@@ -106,7 +129,8 @@
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2">
+                android:columnCount="2"
+                android:layout_marginBottom="16dp">
 
                 <Button
                     android:id="@+id/btnStartStop"
@@ -114,14 +138,18 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
                     android:text="Grabar"
-                    android:backgroundTint="#4CAF50"/>
+                    app:icon="@android:drawable/ic_media_play"
+                    android:backgroundTint="#6200EE"/>
 
                 <Button
                     android:id="@+id/btnExport"
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
-                    android:text="Subir a Nube"
+                    android:text="Subir"
+                    app:icon="@android:drawable/ic_menu_upload"
+                    app:strokeColor="#6200EE"
+                    android:textColor="#6200EE"
                     style="@style/Widget.Material3.Button.OutlinedButton"/>
 
                 <Button
@@ -129,45 +157,50 @@
                     android:layout_width="0dp"
                     android:layout_columnWeight="2"
                     android:layout_margin="4dp"
-                    android:text="Limpiar Muestras Locales"
-                    android:backgroundTint="#F44336"
+                    android:text="Limpiar Muestras"
+                    app:icon="@android:drawable/ic_menu_delete"
+                    android:textColor="#D32F2F"
+                    app:backgroundTint="#FFEBEE"
                     style="@style/Widget.Material3.Button.TonalButton"/>
             </GridLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:cardBackgroundColor="#E3F2FD"
-                app:cardCornerRadius="12dp"
-                app:strokeColor="#2196F3"
+                app:cardBackgroundColor="#F3E5F5"
+                app:cardCornerRadius="16dp"
+                app:strokeColor="#BA68C8"
                 app:strokeWidth="1dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sincronizado con Firebase:"
-                        android:textColor="#1565C0"
+                        android:text="Estado de la Nube (Firebase)"
+                        android:textColor="#6A1B9A"
                         android:textStyle="bold"/>
+
                     <TextView
                         android:id="@+id/txtGestosNube"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Consultando..."
-                        android:textColor="#0D47A1"
+                        android:textColor="#4A148C"
                         android:layout_marginTop="4dp"
-                        android:layout_marginBottom="12dp"/>
+                        android:layout_marginBottom="16dp"/>
+
                     <Button
                         android:id="@+id/btnDownloadModel"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Descargar Modelo AI"
+                        android:layout_height="60dp"
+                        android:text="Descargar Modelo IA"
                         app:icon="@android:drawable/stat_sys_download"
-                        android:backgroundTint="#2196F3"/>
+                        app:cornerRadius="12dp"
+                        android:backgroundTint="#5E35B1"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

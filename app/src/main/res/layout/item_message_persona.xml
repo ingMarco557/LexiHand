@@ -10,6 +10,6 @@
         android:background="@drawable/bg_bubble_persona"
         android:padding="12dp"
         android:text="¿Cómo estás? (Voz)"
-        android:textColor="#FFFFFF"
+        android:textColor="#111111"
         android:textSize="16sp" />
 </LinearLayout>

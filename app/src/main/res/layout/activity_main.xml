@@ -42,7 +42,7 @@
                     android:id="@+id/statusDot"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:background="@drawable/shape_circle_green"
+                    android:background="@drawable/shape_circle_red"
                     android:layout_marginEnd="12dp"/>
 
                 <TextView
@@ -50,10 +50,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="🔗 Guante Conectado"
+                    android:text="🔗 Guante Desconectado"
                     android:textColor="#111111"
-                    android:textStyle="bold"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtBattery"
