@@ -10,12 +10,20 @@ class Game3PrestartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game3_prestart)
 
+
+        val btnExit: Button = findViewById(R.id.btn_exit_game3)
         val gameMode = intent.getStringExtra("GAME_MODE") ?: "QUICK"
+
         findViewById<Button>(R.id.btn_start_game3).setOnClickListener {
             val intent = Intent(this, Game3Activity::class.java)
             intent.putExtra("GAME_MODE", gameMode)
             startActivity(intent)
             finish()
         }
+
+        btnExit.setOnClickListener {
+            finish() // Te regresa automáticamente a donde estabas (Menú de Juegos)
+        }
+
     }
 }

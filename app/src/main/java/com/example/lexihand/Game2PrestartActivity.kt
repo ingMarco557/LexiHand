@@ -11,6 +11,7 @@ class Game2PrestartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_game2_prestart)
 
         val btnStart: Button = findViewById(R.id.btn_start_game2)
+        val btnExit: Button = findViewById(R.id.btn_exit_game2)
         val gameMode = intent.getStringExtra("GAME_MODE") ?: "QUICK"
 
         btnStart.setOnClickListener {
@@ -19,5 +20,10 @@ class Game2PrestartActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
+        btnExit.setOnClickListener {
+            finish() // Te regresa automáticamente a donde estabas (Menú de Juegos)
+        }
+
     }
 }

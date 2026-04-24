@@ -71,6 +71,15 @@ class DataCollectionActivity : AppCompatActivity() {
         configurarSpinner()
         escucharNube()
 
+
+
+        // --- NUEVO CÓDIGO: Funcionalidad de la flecha de Atrás ---
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbarCollection)
+        toolbar.setNavigationOnClickListener {
+            finish() // Esto destruye esta pantalla y te regresa a la anterior
+        }
+
+
         // BOTÓN: GRABAR / DETENER
         btnStartStop.setOnClickListener {
             if (!isRecording) startRecording() else stopRecording()

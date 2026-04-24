@@ -14,6 +14,11 @@ class StatisticsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_statistics)
 
         cargarDatosReales()
+
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbarStats)
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     private fun cargarDatosReales() {

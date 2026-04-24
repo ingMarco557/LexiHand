@@ -3,113 +3,147 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F3FF" android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#F5F3FF"
+    android:orientation="vertical">
 
-    <TextView
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MÓDULO DE TRADUCCIÓN IA"
-        android:textColor="#5E35B1" android:textSize="14sp"
-        android:letterSpacing="0.05"
-        android:layout_marginBottom="8dp"
-        android:textStyle="bold" />
+        app:elevation="0dp">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarDiagnostics"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#6200EE"
+            app:titleTextColor="#FFFFFF"
+            app:title="Diagnóstico del Sistema"
+            app:navigationIconTint="#FFFFFF"
+            app:navigationIcon="@drawable/ic_back" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.card.MaterialCardView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="#FFFFFF"
-        android:layout_marginBottom="20dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/txtIAResultado"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Gesto: --"
-                android:textColor="#311B92" android:textSize="40sp"
+                android:text="MÓDULO DE TRADUCCIÓN IA"
+                android:textColor="#5E35B1"
+                android:textSize="14sp"
+                android:letterSpacing="0.05"
+                android:layout_marginBottom="8dp"
                 android:textStyle="bold" />
 
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/txtIAResultado"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Gesto: --"
+                        android:textColor="#311B92"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtIAConfianza"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Confianza: 0%"
+                        android:textColor="#757575"
+                        android:textSize="14sp"
+                        android:layout_marginTop="8dp"/>
+
+                    <ProgressBar
+                        android:id="@+id/pbConfianza"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressTint="#6200EE" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <TextView
-                android:id="@+id/txtIAConfianza"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Confianza: 0%"
-                android:textColor="#757575"
+                android:text="ESTADO DE SENSORES (EJE X)"
+                android:textColor="#5E35B1"
                 android:textSize="14sp"
-                android:layout_marginTop="8dp"/>
+                android:letterSpacing="0.05"
+                android:layout_marginBottom="8dp"
+                android:textStyle="bold" />
 
-            <ProgressBar
-                android:id="@+id/pbConfianza"
-                style="?android:attr/progressBarStyleHorizontal"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:max="100"
-                android:progress="0"
-                android:progressTint="#6200EE" /> </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="20dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ESTADO DE SENSORES (EJE X)"
-        android:textColor="#5E35B1"
-        android:textSize="14sp"
-        android:letterSpacing="0.05"
-        android:layout_marginBottom="8dp"
-        android:textStyle="bold" />
+                <LinearLayout
+                    android:id="@+id/layoutSensorsRaw"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical">
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="#FFFFFF"
-        android:layout_marginBottom="20dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TERMINAL RAW BLUETOOTH"
+                android:textColor="#5E35B1"
+                android:textSize="14sp"
+                android:letterSpacing="0.05"
+                android:layout_marginBottom="8dp"
+                android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/layoutSensorsRaw"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="200dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#1A1225" >
+                <TextView
+                    android:id="@+id/txtRawTerminal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="monospace"
+                    android:padding="16dp"
+                    android:text="Esperando conexión..."
+                    android:textColor="#B388FF"
+                    android:textSize="12sp" />
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TERMINAL RAW BLUETOOTH"
-        android:textColor="#5E35B1"
-        android:textSize="14sp"
-        android:letterSpacing="0.05"
-        android:layout_marginBottom="8dp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="#1A1225" > <TextView
-        android:id="@+id/txtRawTerminal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fontFamily="monospace"
-        android:padding="16dp"
-        android:text="Esperando conexión..."
-        android:textColor="#B388FF" android:textSize="12sp" />
-    </com.google.android.material.card.MaterialCardView>
-
+    </ScrollView>
 </LinearLayout>

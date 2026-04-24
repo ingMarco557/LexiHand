@@ -8,6 +8,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.google.android.material.textfield.TextInputLayout
+import android.graphics.Color
+import androidx.core.view.WindowCompat
 
 class login : AppCompatActivity() {
 
@@ -22,6 +24,11 @@ class login : AppCompatActivity() {
             irAlMenuPrincipal()
             return
         }
+
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // 2. Pinta la barra de estado de transparente
+        window.statusBarColor = Color.TRANSPARENT
 
         setContentView(R.layout.activity_login)
 
@@ -110,6 +117,9 @@ class login : AppCompatActivity() {
                 }
             }
         }
+
+
+
     }
 
     // FUNCIONES DE VALIDACIÓN

@@ -33,7 +33,8 @@ object Game3Repository {
             Game3Question("V", R.drawable.sena_v),
             Game3Question("W", R.drawable.sena_w),
             Game3Question("X", R.drawable.sena_x),
-            Game3Question("Y", R.drawable.sena_y) // Ejemplo
+            Game3Question("y", R.drawable.sena_y),
+            Game3Question("Z", R.drawable.sena_z) // Ejemplo
             // Agrega todas las que soporte tu modelo aquí
         )
         return list.shuffled()

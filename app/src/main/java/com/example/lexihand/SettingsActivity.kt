@@ -72,5 +72,12 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show()
             finish()
         }
+
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbarSettings)
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
+
+
     }
 }

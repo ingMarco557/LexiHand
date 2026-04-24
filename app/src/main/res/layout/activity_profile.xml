@@ -4,164 +4,185 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F7FA"> <androidx.core.widget.NestedScrollView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:background="#F4F7FA">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="40dp">
-
-        <com.google.android.material.card.MaterialCardView
+        app:elevation="0dp">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarProfile"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="8dp"
-            app:strokeWidth="0dp">
+            android:layout_height="?attr/actionBarSize"
+            android:background="#6200EE"
+            app:titleTextColor="#FFFFFF"
+            app:title="Mi Perfil"
+            app:navigationIconTint="#FFFFFF"
+            app:navigationIcon="@drawable/ic_back" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="140dp" android:src="@drawable/bg_perfil_card"
-                    android:scaleType="centerCrop" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:background="#60000000" /> <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="24dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imgAvatar"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/ic_profile"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="#D1C4E9"/>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:id="@+id/txtUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Cargando..."
-                        android:textSize="22sp"
-                        android:textColor="#FFFFFF"
-                        android:textStyle="bold"/>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardBackgroundColor="#311B92" >
-
-                        <TextView
-                            android:id="@+id/txtUserLevel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Nivel: --"
-                            android:textColor="#E040FB"
-                            android:textStyle="bold"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="4dp"
-                            android:textSize="12sp"/>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
-            </LinearLayout>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp">
+            android:paddingBottom="40dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
-                android:layout_marginBottom="24dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#EAEAEA"
-                app:cardBackgroundColor="#FFFFFF">
+                android:layout_margin="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="8dp"
+                app:strokeWidth="0dp">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_height="wrap_content">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Datos del Usuario"
-                        android:textStyle="bold"
-                        android:textSize="18sp"
-                        android:textColor="#212121"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        android:src="@drawable/bg_perfil_card"
+                        android:scaleType="centerCrop" />
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#F0F0F0"
-                        android:layout_marginVertical="16dp"/>
+                        android:layout_height="140dp"
+                        android:background="#60000000" />
 
-                    <TextView
-                        android:id="@+id/txtUserAge"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Edad: --"
-                        android:textColor="#555555"
-                        android:textSize="16sp"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="24dp">
 
-                    <TextView
-                        android:id="@+id/txtUserHand"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Mano: --"
-                        android:layout_marginTop="16dp"
-                        android:textColor="#555555"
-                        android:textSize="16sp"/>
-                </LinearLayout>
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/imgAvatar"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/ic_profile"
+                            app:civ_border_width="2dp"
+                            app:civ_border_color="#D1C4E9"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp">
+
+                            <TextView
+                                android:id="@+id/txtUserName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cargando..."
+                                android:textSize="22sp"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"/>
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                app:cardCornerRadius="12dp"
+                                app:cardBackgroundColor="#311B92" >
+
+                                <TextView
+                                    android:id="@+id/txtUserLevel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nivel: --"
+                                    android:textColor="#E040FB"
+                                    android:textStyle="bold"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="4dp"
+                                    android:textSize="12sp"/>
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+                    </LinearLayout>
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <Button
-                android:id="@+id/btnRevinculate"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="Re-vincular Guante"
-                android:layout_marginBottom="12dp"
-                app:cornerRadius="16dp"
-                android:backgroundTint="#6200EE"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
 
-            <Button
-                android:id="@+id/btnLogout"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="Cerrar Sesión"
-                android:textColor="#D32F2F"
-                android:textStyle="bold"/>
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="20dp"
+                    android:layout_marginBottom="24dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EAEAEA"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Datos del Usuario"
+                            android:textStyle="bold"
+                            android:textSize="18sp"
+                            android:textColor="#212121"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:layout_marginVertical="16dp"/>
+
+                        <TextView
+                            android:id="@+id/txtUserAge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Edad: --"
+                            android:textColor="#555555"
+                            android:textSize="16sp"/>
+
+                        <TextView
+                            android:id="@+id/txtUserHand"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Mano: --"
+                            android:layout_marginTop="16dp"
+                            android:textColor="#555555"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Button
+                    android:id="@+id/btnRevinculate"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Re-vincular Guante"
+                    android:layout_marginBottom="12dp"
+                    app:cornerRadius="16dp"
+                    android:backgroundTint="#6200EE"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnLogout"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Cerrar Sesión"
+                    android:textColor="#D32F2F"
+                    android:textStyle="bold"/>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

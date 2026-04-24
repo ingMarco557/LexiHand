@@ -29,7 +29,7 @@ object GameRepository {
         QuestionData(
             R.drawable.sena_e, // Asegúrate de que tienes una imagen en drawable con este nombre
             "E",
-            "R", "K", "Q"
+            "R", "Ñ", "Q"
         ),
         QuestionData(
             R.drawable.sena_f, // Asegúrate de que tienes una imagen en drawable con este nombre
@@ -74,11 +74,11 @@ object GameRepository {
         QuestionData(
             R.drawable.sena_n, // Asegúrate de que tienes una imagen en drawable con este nombre
             "N",
-            "W", "H", "T"
+            "W", "Ñ", "T"
         ),
         QuestionData(
             R.drawable.sena_n2, // Asegúrate de que tienes una imagen en drawable con este nombre
-            "N2",
+            "Ñ",
             "P", "U", "M"
         ),
         QuestionData(
@@ -109,7 +109,7 @@ object GameRepository {
         QuestionData(
             R.drawable.sena_t, // Asegúrate de que tienes una imagen en drawable con este nombre
             "T",
-            "G", "H", "J"
+            "G", "Ñ", "J"
         ),
         QuestionData(
             R.drawable.sena_u, // Asegúrate de que tienes una imagen en drawable con este nombre
@@ -134,6 +134,11 @@ object GameRepository {
         QuestionData(
             R.drawable.sena_y, // Asegúrate de que tienes una imagen en drawable con este nombre
             "Y",
+            "A", "T", "Ñ"
+        ),
+        QuestionData(
+            R.drawable.sena_z, // Asegúrate de que tienes una imagen en drawable con este nombre
+            "Z",
             "A", "L", "E"
         )
         // Agrega más aquí...

@@ -1,26 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="16dp" android:gravity="center_horizontal" android:background="#F3F3F3">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center_horizontal"
+    android:background="@drawable/bg_result_game3">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <TextView android:id="@+id/tv_g3_progress" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="1/10" android:textSize="20sp" android:textStyle="bold" />
-        <TextView android:id="@+id/tv_g3_timer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⏱️ 10s" android:textSize="24sp" android:textColor="@android:color/holo_red_dark" android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView android:id="@+id/tv_g3_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1/10"
+            android:textSize="22sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+
+        <TextView android:id="@+id/tv_g3_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏱️ 10s"
+            android:textSize="24sp"
+            android:textColor="#FF5252"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView android:id="@+id/tv_connection_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔴 Desconectado (Buscando...)" android:textColor="@android:color/holo_red_dark" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_marginBottom="16dp"/>
+    <TextView android:id="@+id/tv_connection_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔴 Desconectado (Buscando...)"
+        android:textColor="#FF5252"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"/>
 
-    <ImageView android:id="@+id/iv_g3_target" android:layout_width="200dp" android:layout_height="200dp" android:layout_marginBottom="16dp" android:scaleType="fitCenter" />
+    <ImageView android:id="@+id/iv_g3_target"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_marginBottom="32dp"
+        android:scaleType="fitCenter" />
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lo que detecta el guante:" android:textStyle="bold" android:textSize="16sp" />
+    <TextView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SEÑA DETECTADA:"
+        android:textColor="#B3FFFFFF"
+        android:letterSpacing="0.1"
+        android:textStyle="bold"
+        android:textSize="14sp" />
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center" android:layout_marginTop="8dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
 
-        <TextView android:id="@+id/tv_g3_detected" android:layout_width="80dp" android:layout_height="80dp" android:text="?" android:textSize="40sp" android:textStyle="bold" android:gravity="center" android:background="#FFFFFF" android:elevation="4dp"/>
+        <TextView android:id="@+id/tv_g3_detected"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:text="?"
+            android:textColor="#00E676"
+            android:textSize="45sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="#33000000" />
 
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Confianza:" />
-            <TextView android:id="@+id/tv_g3_confidence" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="24sp" android:textStyle="bold" android:textColor="#FF9800"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="24dp">
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Certeza de IA:"
+                android:textColor="#B3FFFFFF"/>
+
+            <TextView android:id="@+id/tv_g3_confidence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#00E676"/>
         </LinearLayout>
     </LinearLayout>
 

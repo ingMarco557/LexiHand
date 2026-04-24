@@ -51,6 +51,14 @@ class DiagnosticsActivity : AppCompatActivity() {
         pbConfianza = findViewById(R.id.pbConfianza)
 
         txtTerminal.text = "> INICIANDO RECEPCIÓN BLUETOOTH..."
+
+
+        // --- NUEVO CÓDIGO:
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbarDiagnostics)
+        toolbar.setNavigationOnClickListener {
+            finish() // Esto regresa a la pantalla anterior
+        }
+
     }
 
     private fun actualizarUI(rawData: String) {
